@@ -47,9 +47,9 @@ def build(board: str = "unoq", target: str = "unoq") -> IRProgram:
     linux = target == "unoq"
     windows = (IRWindow(0, 0, 10_000, 32, on_mcu=not linux, on_linux=linux),)
     place_w = "LINUX" if linux else "MCU"
-    win_reason = ("avg(temp, 10s): window history kept on Linux",) if linux else ("default: no Bridge hop",)
+    win_reason = ("avg(temp, 10s): window history kept on Linux",) if linux else ("--target mcu-only",)
     notify_place = "LINUX" if linux else "MCU"
-    notify_reason = ("NOTIFY leaves the MCU",) if linux else ("default: no Bridge hop",)
+    notify_reason = ("NOTIFY leaves the MCU",) if linux else ("--target mcu-only",)
     rules = (
         IRRule(0, "cool", {TEMP: _iv(35, False, 125, True)}, (CodeRange(TEMP, 466, None),),
                None, SetState(0, ON), 20, "MCU", ("REALTIME 20ms",), None),

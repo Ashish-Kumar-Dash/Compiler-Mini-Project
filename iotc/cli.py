@@ -10,7 +10,8 @@ from pathlib import Path
 
 from . import __version__
 from .diagnostics import Sink, render, summary_line, to_ascii, to_json
-from .frontend import parse_file
+from .options import Options
+from .pipeline import compile_file
 
 
 class UsageError(Exception):
@@ -60,11 +61,20 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def check_output(path: str, *, as_json: bool = False, ascii_only: bool = False, color: bool = False,
-                 werror: bool = False) -> tuple[str, int]:
-    """Run the front end and render the result. Returns (text, exit code). Used by tests too."""
+def options_from(args: argparse.Namespace) -> Options:
+    try:
+        return Options.make(board=args.board, target=args.target, sample_ms=args.sample_ms,
+                            heartbeat_ms=args.heartbeat_ms, failsafe_timeout_ms=args.failsafe_timeout_ms,
+                            place_windows=args.place_windows)
+    except ValueError as exc:
+        raise UsageError(str(exc)) from exc
+
+
+def check_output(path: str, *, options: Options | None = None, as_json: bool = False,
+                 ascii_only: bool = False, color: bool = False, werror: bool = False) -> tuple[str, int]:
+    """Compile up to the analyses and render the result. Returns (text, exit code)."""
     sink = Sink(werror=werror)
-    res = parse_file(path, sink)
+    res = compile_file(path, options or Options(), sink)
     diags = sink.sorted()
     if as_json:
         text = json.dumps(to_json(diags, res.source, suppressed=sink.suppressed),
@@ -86,8 +96,8 @@ def cmd_check(args: argparse.Namespace) -> int:
         raise UsageError(f"no such file: {args.file}")
     color = args.color == "always" or (args.color == "auto" and sys.stdout.isatty() and not args.json)
     ascii_only = args.ascii or not _stream_can_encode(sys.stdout)
-    text, rc = check_output(str(path), as_json=args.json, ascii_only=ascii_only, color=color,
-                            werror=args.werror)
+    text, rc = check_output(str(path), options=options_from(args), as_json=args.json,
+                            ascii_only=ascii_only, color=color, werror=args.werror)
     print(text)
     return rc
 
