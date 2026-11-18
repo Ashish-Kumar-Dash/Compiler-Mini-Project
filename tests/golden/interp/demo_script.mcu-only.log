@@ -1,0 +1,11 @@
+EV,3700,heater,ON,warm,applied,-
+EV,15500,fan,ON,cool,refused,never#1
+EV,19400,fan,ON,cool,applied,-
+EV,19400,heater,OFF,unwarm,applied,-
+EV,20000,fan,OFF,uncool,applied,-
+EV,27200,heater,ON,warm,applied,-
+EV,33000,fan,ON,cool,refused,never#1
+EV,36900,fan,ON,cool,applied,-
+EV,36900,heater,OFF,unwarm,applied,-
+NT,50000,alert,"Overheat"
+NT,55000,dry,"Air too dry"

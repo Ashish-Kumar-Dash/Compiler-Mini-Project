@@ -1,0 +1,45 @@
+t=3800
+|o#......     |
+|o#......     |
+|ooooooooo#   |
+|ooooooooo#   |
+|             |
+|.##...       |
+|             |
+|..##        #|
+t=15500
+|ooooo#..     |
+|ooooo#..   # |
+|ooooooooo# # |
+|ooooooooo# # |
+|             |
+|#.#...     # |
+|             |
+|..##        #|
+t=16700
+|ooooo#..     |
+|ooooo#..  ###|
+|ooooooooo##  |
+|ooooooooo### |
+|          #  |
+|#.....    #  |
+|             |
+|##..        #|
+t=45000
+|ooooooo#     |
+|ooooooo#  ###|
+|ooooooooo##  |
+|ooooooooo### |
+|          #  |
+|#..#..    ###|
+|             |
+|##..        #|
+t=53000
+|ooooooo#     |
+|ooooooo#  ###|
+|oo# .     #  |
+|oo# .     ## |
+|          #  |
+|#..#..    ###|
+|             |
+|##..        #|

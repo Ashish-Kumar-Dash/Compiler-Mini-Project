@@ -1,0 +1,11 @@
+# greenhouse_board: fan follows temp with a 30/35 C hysteresis band (Architecture §17 step 5)
+t_ms,temp,humidity
+0,25,50
+100,33,50
+200,36,50
+300,40,50
+400,32,50
+500,31,50
+600,29,50
+700,33,50
+800,36,50

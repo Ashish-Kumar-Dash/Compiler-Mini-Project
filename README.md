@@ -23,9 +23,16 @@ The design and the normative semantics are in **[Architecture.md](Architecture.m
 | Front end: lexer, parser, diagnostics (every L/P code) | done |
 | Semantic checks (every S code), ADC-code lowering, placement | done |
 | Analyses: intervals, safety proofs, resources, `iotc check` report | done |
-| Interpreter, back ends, dashboard, fuzzer | in progress (Architecture §15) |
+| Reference interpreter, shared runtime, LED-matrix renderer, `iotc run` | done |
+| Back ends, dashboard, fuzzer | in progress (Architecture §15) |
 
-Try it: `py -3.13 -m iotc check examples/greenhouse_board.iot`
+Try it:
+
+```powershell
+py -3.13 -m iotc check examples/greenhouse_board.iot
+py -3.13 -m iotc run examples/greenhouse_board.iot --trace tests/traces/demo_script.csv --kill-linux-at 15000 --revive-linux-at 20000
+py -3.13 -m iotc matrix-preview examples/greenhouse_board.iot --trace tests/traces/demo_script.csv --kill-linux-at 15000 --at 16700
+```
 
 ## Quick start (development)
 

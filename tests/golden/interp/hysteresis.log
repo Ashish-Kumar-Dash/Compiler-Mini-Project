@@ -1,0 +1,4 @@
+LK,100,UP
+EV,200,fan,ON,cool,applied,-
+EV,600,fan,OFF,uncool,applied,-
+EV,800,fan,ON,cool,applied,-

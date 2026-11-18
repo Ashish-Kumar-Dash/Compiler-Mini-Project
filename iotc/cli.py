@@ -55,7 +55,20 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--debug", action="store_true", help="show tracebacks for internal errors")
     sub = p.add_subparsers(dest="cmd")
     _add_common(sub.add_parser("check", help="diagnostics, analyses and reports"))
-    for name in ("build", "run", "fuzz", "matrix-preview", "deploy"):
+    for name, help_ in (("run", "run a trace through the reference interpreter"),
+                        ("matrix-preview", "print the LED-matrix frame at a time in a trace")):
+        sp = sub.add_parser(name, help=help_)
+        _add_common(sp)
+        sp.add_argument("--trace", required=True, help="trace CSV (Architecture §10.1)")
+        sp.add_argument("--kill-linux-at", type=int, default=None, metavar="T_MS")
+        sp.add_argument("--revive-linux-at", type=int, default=None, metavar="T_MS")
+        sp.add_argument("--deaf-linux-at", type=int, default=None, metavar="T_MS",
+                        help="Linux keeps heartbeating but stops processing samples")
+        sp.add_argument("--link-up-at-start", action="store_true", help="scenario start (§9.9)")
+        sp.add_argument("--mutant", choices=["disable-monitor", "single-pass-never", "fs-over-ensure"])
+        if name == "matrix-preview":
+            sp.add_argument("--at", type=int, required=True, metavar="T_MS")
+    for name in ("build", "fuzz", "deploy"):
         sp = sub.add_parser(name)
         sp.add_argument("args", nargs=argparse.REMAINDER)
     return p
@@ -94,6 +107,57 @@ def check_output(path: str, *, options: Options | None = None, as_json: bool = F
     return text, (1 if sink.has_errors() else 0)
 
 
+def _compile_or_report(args: argparse.Namespace):
+    path = Path(args.file)
+    if not path.is_file():
+        raise UsageError(f"no such file: {args.file}")
+    sink = Sink(werror=args.werror)
+    res = compile_file(str(path), options_from(args), sink)
+    if not res.ok:
+        print(render(sink.sorted(), res.source, suppressed=sink.suppressed), file=sys.stderr)
+        print(f"{res.source.name}: {summary_line(sink.items, sink.suppressed)}", file=sys.stderr)
+        return None
+    return res
+
+
+def _interpreter(args: argparse.Namespace, ir, keep_frames: bool = False):
+    from .interp import Interpreter, TraceError, load_trace
+    try:
+        trace = load_trace(args.trace, ir)
+    except (TraceError, OSError) as exc:
+        raise UsageError(str(exc)) from exc
+    it = Interpreter(ir, kill_at=args.kill_linux_at, revive_at=args.revive_linux_at,
+                     deaf_at=args.deaf_linux_at, link_up_at_start=args.link_up_at_start,
+                     mutant=args.mutant, keep_frames=keep_frames)
+    return it, it.run(trace)
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    from .interp import canonical
+    res = _compile_or_report(args)
+    if res is None:
+        return 1
+    it, events = _interpreter(args, res.ir)
+    for line in canonical(events, it.table):
+        print(line)
+    return 0
+
+
+def cmd_matrix_preview(args: argparse.Namespace) -> int:
+    from .runtime.matrix import ascii_art
+    res = _compile_or_report(args)
+    if res is None:
+        return 1
+    it, _ = _interpreter(args, res.ir, keep_frames=True)
+    shown = [f for f in it.frames if f[0] <= args.at]
+    if not shown:
+        raise UsageError(f"no trace row at or before t={args.at}")
+    t, px = shown[-1]
+    print(f"t={t} ms")
+    print(ascii_art(px))
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     path = Path(args.file)
     if not path.is_file():
@@ -119,6 +183,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.cmd == "check":
             return cmd_check(args)
+        if args.cmd == "run":
+            return cmd_run(args)
+        if args.cmd == "matrix-preview":
+            return cmd_matrix_preview(args)
         print(f"iotc {args.cmd}: not implemented yet", file=sys.stderr)
         return 2
     except UsageError as exc:
