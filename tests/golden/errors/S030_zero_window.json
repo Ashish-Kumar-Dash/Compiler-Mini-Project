@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S030_zero_window.iot",
+  "diagnostics": [
+    {
+      "code": "S030",
+      "severity": "error",
+      "message": "window of zero",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 29,
+      "hint": "durations must be greater than 0",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

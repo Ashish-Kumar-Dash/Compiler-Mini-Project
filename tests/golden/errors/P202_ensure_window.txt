@@ -1,0 +1,7 @@
+error[P202]: ENSURE condition uses a windowed value
+  --> examples/errors/P202_ensure_window.iot:5:27
+   |
+ 5 | SAFETY ENSURE fan ON WHEN avg(temp, 10s) > 50;
+   |                           ^^^^^^^^^^^^^^ ENSURE runs on the MCU every pass; use raw sensor values only
+
+examples/errors/P202_ensure_window.iot: 1 error, 0 warnings, 0 notes

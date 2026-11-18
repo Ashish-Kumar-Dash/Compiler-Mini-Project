@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S013_unit_on_digital.iot",
+  "diagnostics": [
+    {
+      "code": "S013",
+      "severity": "error",
+      "message": "unit C on DIGITAL sensor 'door'",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 28,
+      "hint": "DIGITAL values are 0 or 1 and take no unit",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

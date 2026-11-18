@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S035_window_below_sample.iot",
+  "diagnostics": [
+    {
+      "code": "S035",
+      "severity": "error",
+      "message": "window 50ms is shorter than the sample period (100ms)",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 31,
+      "hint": "use a window of at least 100ms or lower --sample-ms",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

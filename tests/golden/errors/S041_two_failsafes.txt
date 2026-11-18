@@ -1,0 +1,8 @@
+error[S041]: second FAILSAFE for 'fan'
+  --> examples/errors/S041_two_failsafes.iot:6:1
+   |
+ 6 | FAILSAFE fan ON;
+   | ^^^^^^^^^^^^^^^^ each actuator has at most one FAILSAFE state
+   = note: first FAILSAFE here (examples/errors/S041_two_failsafes.iot:5:1)
+
+examples/errors/S041_two_failsafes.iot: 1 error, 0 warnings, 0 notes

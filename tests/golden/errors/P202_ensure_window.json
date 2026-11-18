@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P202_ensure_window.iot",
+  "diagnostics": [
+    {
+      "code": "P202",
+      "severity": "error",
+      "message": "ENSURE condition uses a windowed value",
+      "line": 5,
+      "col": 27,
+      "end_line": 5,
+      "end_col": 41,
+      "hint": "ENSURE runs on the MCU every pass; use raw sensor values only",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "file": "examples/errors/S021_pin_twice.iot",
+  "diagnostics": [
+    {
+      "code": "S021",
+      "severity": "error",
+      "message": "pin D7 is already used",
+      "line": 3,
+      "col": 20,
+      "end_line": 3,
+      "end_col": 22,
+      "hint": "give each declaration its own pin",
+      "related": [
+        {
+          "line": 2,
+          "col": 17,
+          "end_line": 2,
+          "end_col": 19,
+          "message": "D7 first bound here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

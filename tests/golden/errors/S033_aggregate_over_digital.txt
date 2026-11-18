@@ -1,0 +1,13 @@
+warning[S033]: avg() over DIGITAL sensor 'door'
+  --> examples/errors/S033_aggregate_over_digital.iot:3:17
+   |
+ 3 | RULE busy: WHEN avg(door, 10s) > 0.5 THEN fan ON;
+   |                 ^^^^^^^^^^^^^^ avg over a DIGITAL sensor is the fraction of time it was 1
+
+warning[S033]: avg() over DIGITAL sensor 'door'
+  --> examples/errors/S033_aggregate_over_digital.iot:4:17
+   |
+ 4 | RULE idle: WHEN avg(door, 10s) < 0.2 THEN fan OFF;
+   |                 ^^^^^^^^^^^^^^ avg over a DIGITAL sensor is the fraction of time it was 1
+
+examples/errors/S033_aggregate_over_digital.iot: 0 errors, 2 warnings, 0 notes

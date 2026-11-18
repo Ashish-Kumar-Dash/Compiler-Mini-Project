@@ -1,0 +1,7 @@
+error[S037]: FOR duration of 25h is longer than 24h
+  --> examples/errors/S037_duration_too_long.iot:2:32
+   |
+ 2 | RULE alert: WHEN temp > 45 FOR 25h THEN NOTIFY "Overheat";
+   |                                ^^^ use a duration of at most 24h
+
+examples/errors/S037_duration_too_long.iot: 1 error, 0 warnings, 0 notes

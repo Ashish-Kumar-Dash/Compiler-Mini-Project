@@ -1,0 +1,7 @@
+error[S030]: window of zero
+  --> examples/errors/S030_zero_window.iot:3:27
+   |
+ 3 | RULE cool: WHEN avg(temp, 0s) > 35 THEN fan ON;
+   |                           ^^ durations must be greater than 0
+
+examples/errors/S030_zero_window.iot: 1 error, 0 warnings, 0 notes

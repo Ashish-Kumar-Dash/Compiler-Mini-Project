@@ -1,0 +1,7 @@
+error[S010]: unit PCT (ratio) does not match sensor 'temp' (C, temperature)
+  --> examples/errors/S010_unit_dimension.iot:3:27
+   |
+ 3 | RULE cool: WHEN temp > 50 PCT THEN fan ON;
+   |                           ^^^ compare temp in C or F
+
+examples/errors/S010_unit_dimension.iot: 1 error, 0 warnings, 0 notes

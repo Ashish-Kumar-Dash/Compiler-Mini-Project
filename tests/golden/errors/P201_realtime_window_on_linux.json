@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "file": "examples/errors/P201_realtime_window_on_linux.iot",
+  "diagnostics": [
+    {
+      "code": "P201",
+      "severity": "error",
+      "message": "REALTIME rule 'cool' uses avg(temp, 5min), which --place-windows=linux puts on Linux",
+      "line": 3,
+      "col": 31,
+      "end_line": 3,
+      "end_col": 46,
+      "hint": "the Bridge has no bounded latency; use --place-windows=mcu or remove REALTIME",
+      "related": [
+        {
+          "line": 3,
+          "col": 20,
+          "end_line": 3,
+          "end_col": 24,
+          "message": "REALTIME deadline here"
+        }
+      ],
+      "data": {}
+    },
+    {
+      "code": "P201",
+      "severity": "error",
+      "message": "REALTIME rule 'uncool' uses avg(temp, 5min), which --place-windows=linux puts on Linux",
+      "line": 4,
+      "col": 33,
+      "end_line": 4,
+      "end_col": 48,
+      "hint": "the Bridge has no bounded latency; use --place-windows=mcu or remove REALTIME",
+      "related": [
+        {
+          "line": 4,
+          "col": 22,
+          "end_line": 4,
+          "end_col": 26,
+          "message": "REALTIME deadline here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

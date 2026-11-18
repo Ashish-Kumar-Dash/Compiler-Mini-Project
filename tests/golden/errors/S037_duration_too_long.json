@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S037_duration_too_long.iot",
+  "diagnostics": [
+    {
+      "code": "S037",
+      "severity": "error",
+      "message": "FOR duration of 25h is longer than 24h",
+      "line": 2,
+      "col": 32,
+      "end_line": 2,
+      "end_col": 35,
+      "hint": "use a duration of at most 24h",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

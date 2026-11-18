@@ -1,0 +1,7 @@
+error[S034]: REALTIME on NOTIFY rule 'alert'
+  --> examples/errors/S034_realtime_notify.iot:2:21
+   |
+ 2 | RULE alert REALTIME 10ms: WHEN temp > 45 THEN NOTIFY "Overheat";
+   |                     ^^^^ NOTIFY runs on Linux; remove REALTIME
+
+examples/errors/S034_realtime_notify.iot: 1 error, 0 warnings, 0 notes

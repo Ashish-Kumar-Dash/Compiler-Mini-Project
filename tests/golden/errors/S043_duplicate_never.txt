@@ -1,0 +1,8 @@
+warning[S043]: duplicate NEVER pair
+  --> examples/errors/S043_duplicate_never.iot:9:1
+   |
+ 9 | SAFETY NEVER fan ON AND heater ON;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ remove one of them
+   = note: first declared here (examples/errors/S043_duplicate_never.iot:8:1)
+
+examples/errors/S043_duplicate_never.iot: 0 errors, 1 warning, 0 notes

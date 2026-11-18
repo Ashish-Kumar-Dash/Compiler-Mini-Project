@@ -1,0 +1,7 @@
+error[S013]: unit C on DIGITAL sensor 'door'
+  --> examples/errors/S013_unit_on_digital.iot:3:27
+   |
+ 3 | RULE open: WHEN door == 1 C THEN fan ON;
+   |                           ^ DIGITAL values are 0 or 1 and take no unit
+
+examples/errors/S013_unit_on_digital.iot: 1 error, 0 warnings, 0 notes

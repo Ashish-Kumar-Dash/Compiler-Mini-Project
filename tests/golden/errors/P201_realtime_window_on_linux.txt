@@ -1,0 +1,15 @@
+error[P201]: REALTIME rule 'cool' uses avg(temp, 5min), which --place-windows=linux puts on Linux
+  --> examples/errors/P201_realtime_window_on_linux.iot:3:31
+   |
+ 3 | RULE cool REALTIME 10ms: WHEN avg(temp, 5min) > 35 THEN fan ON;
+   |                               ^^^^^^^^^^^^^^^ the Bridge has no bounded latency; use --place-windows=mcu or remove REALTIME
+   = note: REALTIME deadline here (examples/errors/P201_realtime_window_on_linux.iot:3:20)
+
+error[P201]: REALTIME rule 'uncool' uses avg(temp, 5min), which --place-windows=linux puts on Linux
+  --> examples/errors/P201_realtime_window_on_linux.iot:4:33
+   |
+ 4 | RULE uncool REALTIME 10ms: WHEN avg(temp, 5min) < 30 THEN fan OFF;
+   |                                 ^^^^^^^^^^^^^^^ the Bridge has no bounded latency; use --place-windows=mcu or remove REALTIME
+   = note: REALTIME deadline here (examples/errors/P201_realtime_window_on_linux.iot:4:22)
+
+examples/errors/P201_realtime_window_on_linux.iot: 2 errors, 0 warnings, 0 notes

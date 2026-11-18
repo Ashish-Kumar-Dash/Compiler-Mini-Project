@@ -1,0 +1,7 @@
+warning[S051]: actuator 'lamp' is never referenced
+  --> examples/errors/S051_unused_actuator.iot:3:10
+   |
+ 3 | ACTUATOR lamp AT D9;
+   |          ^^^^ remove it or set it in a rule
+
+examples/errors/S051_unused_actuator.iot: 0 errors, 1 warning, 0 notes

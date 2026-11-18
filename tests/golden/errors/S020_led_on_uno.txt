@@ -1,0 +1,7 @@
+error[S020]: pin LED3R does not exist on board uno
+  --> examples/errors/S020_led_on_uno.iot:3:17
+   |
+ 3 | ACTUATOR fan AT LED3;
+   |                 ^^^^ the uno board has no onboard RGB LEDs; use a D pin
+
+examples/errors/S020_led_on_uno.iot: 1 error, 0 warnings, 0 notes

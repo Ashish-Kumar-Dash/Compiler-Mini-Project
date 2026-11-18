@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "file": "examples/errors/S033_aggregate_over_digital.iot",
+  "diagnostics": [
+    {
+      "code": "S033",
+      "severity": "warning",
+      "message": "avg() over DIGITAL sensor 'door'",
+      "line": 3,
+      "col": 17,
+      "end_line": 3,
+      "end_col": 31,
+      "hint": "avg over a DIGITAL sensor is the fraction of time it was 1",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "S033",
+      "severity": "warning",
+      "message": "avg() over DIGITAL sensor 'door'",
+      "line": 4,
+      "col": 17,
+      "end_line": 4,
+      "end_col": 31,
+      "hint": "avg over a DIGITAL sensor is the fraction of time it was 1",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

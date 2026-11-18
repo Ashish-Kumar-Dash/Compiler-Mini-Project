@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S001_undeclared_name.iot",
+  "diagnostics": [
+    {
+      "code": "S001",
+      "severity": "error",
+      "message": "unknown sensor 'temprature'",
+      "line": 3,
+      "col": 17,
+      "end_line": 3,
+      "end_col": 27,
+      "hint": "did you mean 'temp'?",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

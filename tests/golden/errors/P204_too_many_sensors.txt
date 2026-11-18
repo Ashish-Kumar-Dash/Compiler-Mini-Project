@@ -1,0 +1,7 @@
+error[P204]: 17 sensors declared (at most 16)
+   --> examples/errors/P204_too_many_sensors.iot:17:8
+    |
+ 17 | SENSOR d10 AT D12 DIGITAL;
+    |        ^^^ one sample message carries at most 16 sensor codes
+
+examples/errors/P204_too_many_sensors.iot: 1 error, 0 warnings, 0 notes

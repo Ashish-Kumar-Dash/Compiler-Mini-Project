@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "file": "examples/errors/S031_short_window.iot",
+  "diagnostics": [
+    {
+      "code": "S031",
+      "severity": "warning",
+      "message": "window 1s spans only 10 sample periods; 10 buckets used",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 29,
+      "hint": "windows of at least 3200ms use all 32 buckets",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "S031",
+      "severity": "warning",
+      "message": "window 1s spans only 10 sample periods; 10 buckets used",
+      "line": 4,
+      "col": 29,
+      "end_line": 4,
+      "end_col": 31,
+      "hint": "windows of at least 3200ms use all 32 buckets",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

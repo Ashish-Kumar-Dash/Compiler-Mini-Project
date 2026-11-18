@@ -1,0 +1,13 @@
+warning[S031]: window 1s spans only 10 sample periods; 10 buckets used
+  --> examples/errors/S031_short_window.iot:3:27
+   |
+ 3 | RULE cool: WHEN avg(temp, 1s) > 35 THEN fan ON;
+   |                           ^^ windows of at least 3200ms use all 32 buckets
+
+warning[S031]: window 1s spans only 10 sample periods; 10 buckets used
+  --> examples/errors/S031_short_window.iot:4:29
+   |
+ 4 | RULE uncool: WHEN avg(temp, 1s) < 30 THEN fan OFF;
+   |                             ^^ windows of at least 3200ms use all 32 buckets
+
+examples/errors/S031_short_window.iot: 0 errors, 2 warnings, 0 notes

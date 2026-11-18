@@ -1,0 +1,7 @@
+warning[S042]: '==' on ANALOG sensor 'temp' is almost never true
+  --> examples/errors/S042_equality_on_analog.iot:3:22
+   |
+ 3 | RULE cool: WHEN temp == 30 THEN fan ON;
+   |                      ^^ use a range: x >= a AND x <= b
+
+examples/errors/S042_equality_on_analog.iot: 0 errors, 1 warning, 0 notes

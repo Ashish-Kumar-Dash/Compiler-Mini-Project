@@ -1,0 +1,7 @@
+error[S022]: ANALOG sensor 'temp' needs an analog pin, not D4
+  --> examples/errors/S022_analog_on_digital_pin.iot:1:16
+   |
+ 1 | SENSOR temp AT D4 ANALOG UNIT C RANGE -40..125;
+   |                ^^ use A0-A5, or declare the sensor DIGITAL
+
+examples/errors/S022_analog_on_digital_pin.iot: 1 error, 0 warnings, 0 notes

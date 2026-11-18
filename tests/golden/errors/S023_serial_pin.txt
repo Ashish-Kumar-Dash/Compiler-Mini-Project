@@ -1,0 +1,7 @@
+warning[S023]: pin D0 is a serial pin
+  --> examples/errors/S023_serial_pin.iot:2:17
+   |
+ 2 | ACTUATOR fan AT D0;
+   |                 ^^ D0/D1 carry Serial1 and the Zephyr console on the UNO Q; prefer D2-D13
+
+examples/errors/S023_serial_pin.iot: 0 errors, 1 warning, 0 notes

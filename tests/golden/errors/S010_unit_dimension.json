@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S010_unit_dimension.iot",
+  "diagnostics": [
+    {
+      "code": "S010",
+      "severity": "error",
+      "message": "unit PCT (ratio) does not match sensor 'temp' (C, temperature)",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 30,
+      "hint": "compare temp in C or F",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

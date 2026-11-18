@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P203_too_many_linux_rules.iot",
+  "diagnostics": [
+    {
+      "code": "P203",
+      "severity": "error",
+      "message": "more than 32 rules placed on Linux",
+      "line": 51,
+      "col": 6,
+      "end_line": 51,
+      "end_col": 10,
+      "hint": "the heartbeat mask has 32 bits; move rules to the MCU (--place-windows=mcu)",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

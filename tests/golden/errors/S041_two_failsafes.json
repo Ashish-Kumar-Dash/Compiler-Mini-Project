@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "file": "examples/errors/S041_two_failsafes.iot",
+  "diagnostics": [
+    {
+      "code": "S041",
+      "severity": "error",
+      "message": "second FAILSAFE for 'fan'",
+      "line": 6,
+      "col": 1,
+      "end_line": 6,
+      "end_col": 17,
+      "hint": "each actuator has at most one FAILSAFE state",
+      "related": [
+        {
+          "line": 5,
+          "col": 1,
+          "end_line": 5,
+          "end_col": 18,
+          "message": "first FAILSAFE here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S034_realtime_notify.iot",
+  "diagnostics": [
+    {
+      "code": "S034",
+      "severity": "error",
+      "message": "REALTIME on NOTIFY rule 'alert'",
+      "line": 2,
+      "col": 21,
+      "end_line": 2,
+      "end_col": 25,
+      "hint": "NOTIFY runs on Linux; remove REALTIME",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S040_never_same_actuator.iot",
+  "diagnostics": [
+    {
+      "code": "S040",
+      "severity": "error",
+      "message": "NEVER pair names 'fan' twice",
+      "line": 5,
+      "col": 25,
+      "end_line": 5,
+      "end_col": 28,
+      "hint": "a NEVER pair forbids two different actuators being in given states",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

@@ -1,0 +1,8 @@
+error[S002]: 'temp' is already declared as a sensor
+  --> examples/errors/S002_duplicate_declaration.iot:2:8
+   |
+ 2 | SENSOR temp AT A1 ANALOG UNIT C RANGE -40..125;
+   |        ^^^^ sensors, actuators and rules share one namespace; rename one
+   = note: first declared here (examples/errors/S002_duplicate_declaration.iot:1:8)
+
+examples/errors/S002_duplicate_declaration.iot: 1 error, 0 warnings, 0 notes

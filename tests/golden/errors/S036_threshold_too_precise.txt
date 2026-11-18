@@ -1,0 +1,7 @@
+error[S036]: threshold 35.12345678901 is too precise for an exact average over 24h
+  --> examples/errors/S036_threshold_too_precise.iot:3:34
+   |
+ 3 | RULE cool: WHEN avg(temp, 24h) > 35.12345678901 THEN fan ON;
+   |                                  ^^^^^^^^^^^^^^ use fewer decimal places or a shorter window
+
+examples/errors/S036_threshold_too_precise.iot: 1 error, 0 warnings, 0 notes

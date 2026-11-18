@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S032_window_ram.iot",
+  "diagnostics": [
+    {
+      "code": "S032",
+      "severity": "error",
+      "message": "window buffers need 1536 bytes; board uno allows 1024",
+      "line": 10,
+      "col": 14,
+      "end_line": 10,
+      "end_col": 28,
+      "hint": "use fewer distinct windows (same sensor and duration share one)",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

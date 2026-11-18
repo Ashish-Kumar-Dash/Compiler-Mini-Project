@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "file": "examples/errors/S043_duplicate_never.iot",
+  "diagnostics": [
+    {
+      "code": "S043",
+      "severity": "warning",
+      "message": "duplicate NEVER pair",
+      "line": 9,
+      "col": 1,
+      "end_line": 9,
+      "end_col": 35,
+      "hint": "remove one of them",
+      "related": [
+        {
+          "line": 8,
+          "col": 1,
+          "end_line": 8,
+          "end_col": 35,
+          "message": "first declared here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

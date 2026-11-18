@@ -1,0 +1,11 @@
+// options: --board uno
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+ACTUATOR heater AT D8;
+ACTUATOR vent AT D9;
+RULE a: WHEN avg(temp, 10s) > 35 THEN fan ON;
+RULE b: WHEN avg(temp, 10s) < 30 THEN fan OFF;
+RULE c: WHEN avg(temp, 20s) < 10 THEN heater ON;
+RULE d: WHEN avg(temp, 20s) > 15 THEN heater OFF;
+RULE e: WHEN avg(temp, 30s) > 40 THEN vent ON;
+RULE f: WHEN avg(temp, 30s) < 32 THEN vent OFF;

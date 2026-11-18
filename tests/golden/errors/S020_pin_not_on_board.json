@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S020_pin_not_on_board.iot",
+  "diagnostics": [
+    {
+      "code": "S020",
+      "severity": "error",
+      "message": "pin D22 does not exist on board unoq",
+      "line": 2,
+      "col": 17,
+      "end_line": 2,
+      "end_col": 20,
+      "hint": "the unoq board has digital pins D0-D13",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

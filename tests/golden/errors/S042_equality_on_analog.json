@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S042_equality_on_analog.iot",
+  "diagnostics": [
+    {
+      "code": "S042",
+      "severity": "warning",
+      "message": "'==' on ANALOG sensor 'temp' is almost never true",
+      "line": 3,
+      "col": 22,
+      "end_line": 3,
+      "end_col": 24,
+      "hint": "use a range: x >= a AND x <= b",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

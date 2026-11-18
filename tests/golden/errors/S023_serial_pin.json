@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S023_serial_pin.iot",
+  "diagnostics": [
+    {
+      "code": "S023",
+      "severity": "warning",
+      "message": "pin D0 is a serial pin",
+      "line": 2,
+      "col": 17,
+      "end_line": 2,
+      "end_col": 19,
+      "hint": "D0/D1 carry Serial1 and the Zephyr console on the UNO Q; prefer D2-D13",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

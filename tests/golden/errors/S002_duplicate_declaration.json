@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "file": "examples/errors/S002_duplicate_declaration.iot",
+  "diagnostics": [
+    {
+      "code": "S002",
+      "severity": "error",
+      "message": "'temp' is already declared as a sensor",
+      "line": 2,
+      "col": 8,
+      "end_line": 2,
+      "end_col": 12,
+      "hint": "sensors, actuators and rules share one namespace; rename one",
+      "related": [
+        {
+          "line": 1,
+          "col": 8,
+          "end_line": 1,
+          "end_col": 12,
+          "message": "first declared here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

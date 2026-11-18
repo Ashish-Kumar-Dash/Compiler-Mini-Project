@@ -1,0 +1,7 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT LED3;
+ACTUATOR heater AT LED3R;
+RULE cool: WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+RULE warm: WHEN temp < 10 THEN heater ON;
+RULE unwarm: WHEN temp > 15 THEN heater OFF;

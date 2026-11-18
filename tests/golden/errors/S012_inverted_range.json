@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S012_inverted_range.iot",
+  "diagnostics": [
+    {
+      "code": "S012",
+      "severity": "error",
+      "message": "RANGE 125..-40 is inverted",
+      "line": 1,
+      "col": 39,
+      "end_line": 1,
+      "end_col": 47,
+      "hint": "write RANGE -40..125",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

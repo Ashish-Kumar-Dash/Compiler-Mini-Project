@@ -1,0 +1,7 @@
+warning[S050]: sensor 'humidity' is never used
+  --> examples/errors/S050_unused_sensor.iot:2:8
+   |
+ 2 | SENSOR humidity AT A1 ANALOG UNIT PCT RANGE 0..100;
+   |        ^^^^^^^^ remove it or use it in a rule
+
+examples/errors/S050_unused_sensor.iot: 0 errors, 1 warning, 0 notes

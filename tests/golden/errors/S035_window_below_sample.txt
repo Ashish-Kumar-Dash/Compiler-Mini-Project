@@ -1,0 +1,7 @@
+error[S035]: window 50ms is shorter than the sample period (100ms)
+  --> examples/errors/S035_window_below_sample.iot:3:27
+   |
+ 3 | RULE cool: WHEN avg(temp, 50ms) > 35 THEN fan ON;
+   |                           ^^^^ use a window of at least 100ms or lower --sample-ms
+
+examples/errors/S035_window_below_sample.iot: 1 error, 0 warnings, 0 notes

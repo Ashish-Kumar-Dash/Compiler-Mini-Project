@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "file": "examples/errors/S003_wrong_kind.iot",
+  "diagnostics": [
+    {
+      "code": "S003",
+      "severity": "error",
+      "message": "'fan' is an actuator, not a sensor",
+      "line": 3,
+      "col": 17,
+      "end_line": 3,
+      "end_col": 20,
+      "hint": null,
+      "related": [
+        {
+          "line": 2,
+          "col": 10,
+          "end_line": 2,
+          "end_col": 13,
+          "message": "'fan' is declared here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

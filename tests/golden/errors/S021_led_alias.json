@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "file": "examples/errors/S021_led_alias.iot",
+  "diagnostics": [
+    {
+      "code": "S021",
+      "severity": "error",
+      "message": "pin LED3R is already used (LED3 is LED3R, LED4 is LED4R)",
+      "line": 3,
+      "col": 20,
+      "end_line": 3,
+      "end_col": 25,
+      "hint": "give each declaration its own pin",
+      "related": [
+        {
+          "line": 2,
+          "col": 17,
+          "end_line": 2,
+          "end_col": 21,
+          "message": "LED3R first bound here"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

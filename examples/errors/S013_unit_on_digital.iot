@@ -1,0 +1,4 @@
+SENSOR door AT D2 DIGITAL;
+ACTUATOR fan AT D7;
+RULE open: WHEN door == 1 C THEN fan ON;
+RULE shut: WHEN door == 0 THEN fan OFF;

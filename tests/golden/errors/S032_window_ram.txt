@@ -1,0 +1,7 @@
+error[S032]: window buffers need 1536 bytes; board uno allows 1024
+   --> examples/errors/S032_window_ram.iot:10:14
+    |
+ 10 | RULE e: WHEN avg(temp, 30s) > 40 THEN vent ON;
+    |              ^^^^^^^^^^^^^^ use fewer distinct windows (same sensor and duration share one)
+
+examples/errors/S032_window_ram.iot: 1 error, 0 warnings, 0 notes

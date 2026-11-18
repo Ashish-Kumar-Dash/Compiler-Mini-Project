@@ -1,0 +1,7 @@
+error[P203]: more than 32 rules placed on Linux
+   --> examples/errors/P203_too_many_linux_rules.iot:51:6
+    |
+ 51 | RULE on16: WHEN avg(temp, 10s) > 46 THEN a16 ON;
+    |      ^^^^ the heartbeat mask has 32 bits; move rules to the MCU (--place-windows=mcu)
+
+examples/errors/P203_too_many_linux_rules.iot: 1 error, 0 warnings, 0 notes

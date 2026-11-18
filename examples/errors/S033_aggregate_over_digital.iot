@@ -1,0 +1,4 @@
+SENSOR door AT D2 DIGITAL;
+ACTUATOR fan AT D7;
+RULE busy: WHEN avg(door, 10s) > 0.5 THEN fan ON;
+RULE idle: WHEN avg(door, 10s) < 0.2 THEN fan OFF;

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P204_too_many_sensors.iot",
+  "diagnostics": [
+    {
+      "code": "P204",
+      "severity": "error",
+      "message": "17 sensors declared (at most 16)",
+      "line": 17,
+      "col": 8,
+      "end_line": 17,
+      "end_col": 11,
+      "hint": "one sample message carries at most 16 sensor codes",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

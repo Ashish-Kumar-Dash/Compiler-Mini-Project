@@ -1,0 +1,7 @@
+error[S040]: NEVER pair names 'fan' twice
+  --> examples/errors/S040_never_same_actuator.iot:5:25
+   |
+ 5 | SAFETY NEVER fan ON AND fan OFF;
+   |                         ^^^ a NEVER pair forbids two different actuators being in given states
+
+examples/errors/S040_never_same_actuator.iot: 1 error, 0 warnings, 0 notes

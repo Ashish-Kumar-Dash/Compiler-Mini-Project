@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/S036_threshold_too_precise.iot",
+  "diagnostics": [
+    {
+      "code": "S036",
+      "severity": "error",
+      "message": "threshold 35.12345678901 is too precise for an exact average over 24h",
+      "line": 3,
+      "col": 34,
+      "end_line": 3,
+      "end_col": 48,
+      "hint": "use fewer decimal places or a shorter window",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

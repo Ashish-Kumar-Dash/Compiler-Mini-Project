@@ -1,0 +1,7 @@
+error[S012]: RANGE 125..-40 is inverted
+  --> examples/errors/S012_inverted_range.iot:1:39
+   |
+ 1 | SENSOR temp AT A0 ANALOG UNIT C RANGE 125..-40;
+   |                                       ^^^^^^^^ write RANGE -40..125
+
+examples/errors/S012_inverted_range.iot: 1 error, 0 warnings, 0 notes
