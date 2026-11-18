@@ -736,7 +736,9 @@ Rows must have strictly increasing `t_ms` that are multiples of S, one column pe
 DIGITAL values in {0, 1}; otherwise exit 2 with the row number.
 
 `iotc run f.iot --trace t.csv [--target unoq|mcu-only] [--kill-linux-at T] [--revive-linux-at T]
-[--link-up-at-start]` prints the canonical log.
+[--deaf-linux-at T] [--link-up-at-start] [--mutant M]` prints the canonical log.
+`--deaf-linux-at` keeps Linux heartbeating but stops it processing samples (its acknowledgement
+goes stale, §9.3 step 4a). `iotc matrix-preview … --at T` prints the LED-matrix frame as ASCII.
 
 ### 10.2 Fuzzer
 Generators: random walks, spikes, plateaus at codes `k−1, k, k+1` around every threshold code
@@ -889,9 +891,12 @@ name).
 A pure function `frame(state) → uint8_t[104]` (row-major, 8 rows × 13 columns, values 0–7),
 generated identically in C++ and Python (ASCII-art goldens via `iotc matrix-preview`; the page
 mirrors it):
-- Columns 0–9: rows 0–3 hold one 2-row bar per sensor (≤ 2 sensors) or one row each (≤ 4); the
-  bar length is `⌊code·10/(A+1)⌋`, threshold codes of the rules on that sensor are dim ticks
-  (level 2), the bar is level 5, the tip level 7. Row 5: one pixel per rule (≤ 10): 7 firing,
+- Columns 0–9: rows 0–3 hold one 2-row bar per sensor (≤ 2 sensors) or one row each (≤ 4). A bar
+  shows a *zoomed* code range `[zlo, zhi]` computed by the compiler around that sensor's threshold
+  codes `T` (margin `m = max(⌊A/8⌋, ⌊(max T − min T)/4⌋)`; full range if there are none), so a
+  5 °C hysteresis gap is two distinct columns. Column of a code: 0 below `zlo`, 9 above `zhi`,
+  else `⌊(code − zlo)·10/(zhi − zlo + 1)⌋`. Threshold ticks are dim (level 2), the bar level 5,
+  its tip level 7; the bar is empty below `zlo`. Row 5: one pixel per rule (≤ 10): 7 firing,
   1 idle, alternating 7/1 per tick while a FOR timer runs. Row 7: one 2-pixel block per actuator
   (≤ 5): 7 ON, 1 OFF.
 - Columns 10–12, rows 0–7: status glyph (3×5 font, rows 1–5): `F` while FAILSAFE, `E` while an
