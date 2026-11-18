@@ -20,7 +20,12 @@ The design and the normative semantics are in **[Architecture.md](Architecture.m
 | Stage | State |
 |---|---|
 | Architecture v3, repo skeleton, frozen IR, Phase 0 probe Apps | done |
-| Front end, analyses, interpreter, back ends, dashboard | in progress (Architecture §15) |
+| Front end: lexer, parser, diagnostics (every L/P code) | done |
+| Semantic checks (every S code), ADC-code lowering, placement | done |
+| Analyses: intervals, safety proofs, resources, `iotc check` report | done |
+| Interpreter, back ends, dashboard, fuzzer | in progress (Architecture §15) |
+
+Try it: `py -3.13 -m iotc check examples/greenhouse_board.iot`
 
 ## Quick start (development)
 

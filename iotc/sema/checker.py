@@ -37,6 +37,7 @@ class Checker:
         self.sink = sink
         self.syms = symbols.build(program, sink)
         self.out = Checked(program, options, self.syms)
+        self.window_reported: set[tuple[str, int, str]] = set()
 
     # -- durations ----------------------------------------------------------------------------
     def duration(self, ms: int, span, what: str) -> bool:
@@ -61,6 +62,14 @@ class Checker:
                                   f"write RANGE {s.hi.text}..{s.lo.text}" if lo > hi else  # type: ignore[union-attr]
                                   "the lower bound must be below the upper bound")
 
+    def _first(self, sensor: str, window_ms: int, code: str) -> bool:
+        """Report window findings once per (sensor, window) rather than per comparison."""
+        key = (sensor, window_ms, code)
+        if key in self.window_reported:
+            return False
+        self.window_reported.add(key)
+        return True
+
     # -- comparisons --------------------------------------------------------------------------
     def cmp(self, c: A.Cmp) -> None:
         v = c.value
@@ -76,11 +85,11 @@ class Checker:
                     self.sink.add("S035", f"window {fmt_duration(v.window_ms)} is shorter than the "
                                   f"sample period ({S}ms)", v.window_span,
                                   f"use a window of at least {S}ms or lower --sample-ms")
-                elif v.window_ms // S < 32:
+                elif v.window_ms // S < 32 and self._first(sname.text, v.window_ms, "S031"):
                     self.sink.add("S031", f"window {fmt_duration(v.window_ms)} spans only "
                                   f"{v.window_ms // S} sample periods; {v.window_ms // S} buckets used",
                                   v.window_span, f"windows of at least {fmt_duration(32 * S)} use all 32 buckets")
-            if sensor.kind == "DIGITAL":
+            if sensor.kind == "DIGITAL" and self._first(sname.text, v.window_ms, "S033" + v.fn):
                 self.sink.add("S033", f"{v.fn}() over DIGITAL sensor '{sname.text}'", v.span,
                               "avg over a DIGITAL sensor is the fraction of time it was 1" if v.fn == "avg"
                               else None)

@@ -71,18 +71,22 @@ def options_from(args: argparse.Namespace) -> Options:
 
 
 def check_output(path: str, *, options: Options | None = None, as_json: bool = False,
-                 ascii_only: bool = False, color: bool = False, werror: bool = False) -> tuple[str, int]:
+                 ascii_only: bool = False, color: bool = False, werror: bool = False,
+                 with_report: bool = True) -> tuple[str, int]:
     """Compile up to the analyses and render the result. Returns (text, exit code)."""
     sink = Sink(werror=werror)
     res = compile_file(path, options or Options(), sink)
     diags = sink.sorted()
     if as_json:
-        text = json.dumps(to_json(diags, res.source, suppressed=sink.suppressed),
+        reports = res.report.json() if res.report else None
+        text = json.dumps(to_json(diags, res.source, reports=reports, suppressed=sink.suppressed),
                           ensure_ascii=False, indent=2)
     else:
         parts = []
         if diags or sink.suppressed:
             parts.append(render(diags, res.source, color=color, suppressed=sink.suppressed))
+        if res.report is not None and with_report:
+            parts.append(res.report.text())
         parts.append(f"{res.source.name}: {summary_line(diags, sink.suppressed)}")
         text = "\n\n".join(parts)
         if ascii_only:
