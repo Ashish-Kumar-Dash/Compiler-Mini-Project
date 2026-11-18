@@ -1,0 +1,5 @@
+name: iotc probe
+icon: 🔬
+description: Phase 0 measurements of Bridge, LEDs, LED matrix and timing for the iotc compiler
+bricks:
+  - arduino:web_ui

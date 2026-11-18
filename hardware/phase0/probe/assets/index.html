@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iotc probe</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 16px; background: #fafafa; color: #111; }
+  pre { background: #fff; border: 1px solid #ddd; padding: 12px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>iotc Phase 0 probe</h1>
+<p>If you can read this, the WebUI brick serves port 7000. The report refreshes every 2 s.</p>
+<pre id="out">waiting for /api/report …</pre>
+<script>
+  async function refresh() {
+    try {
+      const r = await fetch('/api/report', {cache: 'no-store'});
+      document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 1);
+    } catch (e) {
+      document.getElementById('out').textContent = 'error: ' + e;
+    }
+  }
+  refresh();
+  setInterval(refresh, 2000);
+</script>
+</body>
+</html>

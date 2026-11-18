@@ -1,0 +1,4 @@
+name: iotc serial probe
+icon: 📟
+description: Does Serial block when the sketch never calls Bridge.begin()?
+bricks: []
