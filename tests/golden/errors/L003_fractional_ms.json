@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L003_fractional_ms.iot",
+  "diagnostics": [
+    {
+      "code": "L003",
+      "severity": "error",
+      "message": "duration 0.5ms is not a whole number of milliseconds",
+      "line": 3,
+      "col": 20,
+      "end_line": 3,
+      "end_col": 25,
+      "hint": "use a whole number of milliseconds, e.g. 1ms or 1500ms",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

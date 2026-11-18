@@ -1,0 +1,4 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+ACTUATOR heater AT D8;
+RULE cool: WHEN temp > 35 THEN fan ON, heater OFF;

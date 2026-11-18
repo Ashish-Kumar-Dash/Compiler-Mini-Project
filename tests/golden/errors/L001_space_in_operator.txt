@@ -1,0 +1,7 @@
+error[L001]: unexpected character '='
+  --> examples/errors/L001_space_in_operator.iot:3:24
+   |
+ 3 | RULE cool: WHEN temp > = 35 THEN fan ON;
+   |                        ^ write >= without a space
+
+examples/errors/L001_space_in_operator.iot: 1 error, 0 warnings, 0 notes

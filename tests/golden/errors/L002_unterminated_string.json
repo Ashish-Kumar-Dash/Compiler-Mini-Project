@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L002_unterminated_string.iot",
+  "diagnostics": [
+    {
+      "code": "L002",
+      "severity": "error",
+      "message": "unterminated string",
+      "line": 2,
+      "col": 40,
+      "end_line": 2,
+      "end_col": 45,
+      "hint": "close the string with \" on the same line",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

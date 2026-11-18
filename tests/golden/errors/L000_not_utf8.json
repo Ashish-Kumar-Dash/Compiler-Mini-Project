@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L000_not_utf8.iot",
+  "diagnostics": [
+    {
+      "code": "L000",
+      "severity": "error",
+      "message": "file is not valid UTF-8 (byte 0xE9)",
+      "line": 2,
+      "col": 7,
+      "end_line": 2,
+      "end_col": 8,
+      "hint": "save the file as UTF-8",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

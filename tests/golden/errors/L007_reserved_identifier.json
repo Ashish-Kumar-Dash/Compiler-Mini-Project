@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L007_reserved_identifier.iot",
+  "diagnostics": [
+    {
+      "code": "L007",
+      "severity": "error",
+      "message": "invalid identifier '_temp': starts with '_'",
+      "line": 1,
+      "col": 8,
+      "end_line": 1,
+      "end_col": 13,
+      "hint": "identifiers start with a lowercase letter",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

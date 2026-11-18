@@ -1,0 +1,7 @@
+error[L007]: invalid identifier '_temp': starts with '_'
+  --> examples/errors/L007_reserved_identifier.iot:1:8
+   |
+ 1 | SENSOR _temp AT A0 ANALOG UNIT C RANGE -40..125;
+   |        ^^^^^ identifiers start with a lowercase letter
+
+examples/errors/L007_reserved_identifier.iot: 1 error, 0 warnings, 0 notes

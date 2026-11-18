@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P001_missing_colon.iot",
+  "diagnostics": [
+    {
+      "code": "P001",
+      "severity": "error",
+      "message": "expected ':', found `WHEN`",
+      "line": 3,
+      "col": 11,
+      "end_line": 3,
+      "end_col": 15,
+      "hint": "write RULE cool: WHEN ...",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

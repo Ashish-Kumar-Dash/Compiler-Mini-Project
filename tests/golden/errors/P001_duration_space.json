@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P001_duration_space.iot",
+  "diagnostics": [
+    {
+      "code": "P001",
+      "severity": "error",
+      "message": "expected a REALTIME deadline (e.g. 10ms), found number `10`",
+      "line": 3,
+      "col": 20,
+      "end_line": 3,
+      "end_col": 22,
+      "hint": "write 10ms without a space",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

@@ -1,0 +1,5 @@
+error[L001]: unknown character '温'
+  --> wide.iot:1:17
+   |
+ 1 | 	RULE r: WHEN t 温 > 5 THEN f ON;
+   | 	               ^^

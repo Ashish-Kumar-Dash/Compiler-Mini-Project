@@ -1,0 +1,7 @@
+error[P001]: expected ':', found `WHEN`
+  --> examples/errors/P001_missing_colon.iot:3:11
+   |
+ 3 | RULE cool WHEN temp > 35 THEN fan ON;
+   |           ^^^^ write RULE cool: WHEN ...
+
+examples/errors/P001_missing_colon.iot: 1 error, 0 warnings, 0 notes

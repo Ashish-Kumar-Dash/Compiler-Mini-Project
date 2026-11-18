@@ -1,0 +1,7 @@
+error[L005]: unknown word 'OR'
+  --> examples/errors/L005_or.iot:3:27
+   |
+ 3 | RULE cool: WHEN temp > 35 OR temp < 0 THEN fan ON;
+   |                           ^^ OR is not supported: write two rules
+
+examples/errors/L005_or.iot: 1 error, 0 warnings, 0 notes

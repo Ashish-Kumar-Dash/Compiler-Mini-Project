@@ -1,0 +1,2 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+RULE alert: WHEN temp > 45 THEN NOTIFY "Température haute";

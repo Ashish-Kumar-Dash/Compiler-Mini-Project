@@ -1,0 +1,7 @@
+error[P001]: expected ';', found `UNIT`
+  --> examples/errors/P001_digital_with_unit.iot:1:27
+   |
+ 1 | SENSOR door AT D2 DIGITAL UNIT C;
+   |                           ^^^^ DIGITAL sensors take no UNIT or RANGE
+
+examples/errors/P001_digital_with_unit.iot: 1 error, 0 warnings, 0 notes

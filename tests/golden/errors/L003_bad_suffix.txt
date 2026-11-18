@@ -1,0 +1,7 @@
+error[L003]: bad duration suffix 'm'
+  --> examples/errors/L003_bad_suffix.iot:3:27
+   |
+ 3 | RULE warm: WHEN avg(temp, 5m) < 18 THEN heater ON;
+   |                           ^^ write 5min
+
+examples/errors/L003_bad_suffix.iot: 1 error, 0 warnings, 0 notes

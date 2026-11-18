@@ -1,0 +1,7 @@
+error[P001]: expected ';', found `ACTUATOR` on the next line
+  --> examples/errors/P001_missing_semicolon.iot:1:47
+   |
+ 1 | SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125
+   |                                               ^ end each declaration with ';'
+
+examples/errors/P001_missing_semicolon.iot: 1 error, 0 warnings, 0 notes

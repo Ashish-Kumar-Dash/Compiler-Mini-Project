@@ -1,0 +1,7 @@
+error[L003]: duration 0.5ms is not a whole number of milliseconds
+  --> examples/errors/L003_fractional_ms.iot:3:20
+   |
+ 3 | RULE cool REALTIME 0.5ms: WHEN temp > 35 THEN fan ON;
+   |                    ^^^^^ use a whole number of milliseconds, e.g. 1ms or 1500ms
+
+examples/errors/L003_fractional_ms.iot: 1 error, 0 warnings, 0 notes

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L003_glued_unit.iot",
+  "diagnostics": [
+    {
+      "code": "L003",
+      "severity": "error",
+      "message": "unit glued to number: '35C'",
+      "line": 3,
+      "col": 24,
+      "end_line": 3,
+      "end_col": 27,
+      "hint": "units need a space: 35 C",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

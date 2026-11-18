@@ -1,0 +1,7 @@
+error[L004]: unsupported escape '\n' in string
+  --> examples/errors/L004_bad_escape.iot:2:44
+   |
+ 2 | RULE alert: WHEN temp > 45 THEN NOTIFY "Hot\nnow";
+   |                                            ^^ only \" and \\ are allowed
+
+examples/errors/L004_bad_escape.iot: 1 error, 0 warnings, 0 notes

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L001_leading_dot.iot",
+  "diagnostics": [
+    {
+      "code": "L001",
+      "severity": "error",
+      "message": "'.5' is not a valid number",
+      "line": 3,
+      "col": 24,
+      "end_line": 3,
+      "end_col": 26,
+      "hint": "write 0.5",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

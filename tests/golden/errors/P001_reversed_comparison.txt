@@ -1,0 +1,7 @@
+error[P001]: expected a sensor name or avg/min/max(...), found number `35`
+  --> examples/errors/P001_reversed_comparison.iot:3:17
+   |
+ 3 | RULE cool: WHEN 35 < temp THEN fan ON;
+   |                 ^^ write the sensor first: temp > 35
+
+examples/errors/P001_reversed_comparison.iot: 1 error, 0 warnings, 0 notes

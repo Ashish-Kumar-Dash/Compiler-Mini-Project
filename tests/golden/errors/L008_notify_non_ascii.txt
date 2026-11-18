@@ -1,0 +1,7 @@
+error[L008]: NOTIFY text contains non-ASCII character 'é'
+  --> examples/errors/L008_notify_non_ascii.iot:2:40
+   |
+ 2 | RULE alert: WHEN temp > 45 THEN NOTIFY "Température haute";
+   |                                        ^^^^^^^^^^^^^^^^^^^ use printable ASCII characters only
+
+examples/errors/L008_notify_non_ascii.iot: 1 error, 0 warnings, 0 notes

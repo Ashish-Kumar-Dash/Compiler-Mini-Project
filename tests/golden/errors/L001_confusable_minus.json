@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L001_confusable_minus.iot",
+  "diagnostics": [
+    {
+      "code": "L001",
+      "severity": "error",
+      "message": "unexpected character U+2212",
+      "line": 1,
+      "col": 39,
+      "end_line": 1,
+      "end_col": 40,
+      "hint": "use the ASCII minus sign '-'",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L004_bad_escape.iot",
+  "diagnostics": [
+    {
+      "code": "L004",
+      "severity": "error",
+      "message": "unsupported escape '\\n' in string",
+      "line": 2,
+      "col": 44,
+      "end_line": 2,
+      "end_col": 46,
+      "hint": "only \\\" and \\\\ are allowed",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

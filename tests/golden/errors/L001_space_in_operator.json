@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L001_space_in_operator.iot",
+  "diagnostics": [
+    {
+      "code": "L001",
+      "severity": "error",
+      "message": "unexpected character '='",
+      "line": 3,
+      "col": 24,
+      "end_line": 3,
+      "end_col": 25,
+      "hint": "write >= without a space",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

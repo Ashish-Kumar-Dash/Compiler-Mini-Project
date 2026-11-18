@@ -1,0 +1,7 @@
+error[P001]: expected a REALTIME deadline (e.g. 10ms), found number `10`
+  --> examples/errors/P001_duration_space.iot:3:20
+   |
+ 3 | RULE cool REALTIME 10 ms: WHEN temp > 35 THEN fan ON;
+   |                    ^^ write 10ms without a space
+
+examples/errors/P001_duration_space.iot: 1 error, 0 warnings, 0 notes

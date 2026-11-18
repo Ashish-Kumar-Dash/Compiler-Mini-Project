@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L001_unknown_char.iot",
+  "diagnostics": [
+    {
+      "code": "L001",
+      "severity": "error",
+      "message": "unknown character '#'",
+      "line": 3,
+      "col": 22,
+      "end_line": 3,
+      "end_col": 23,
+      "hint": null,
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

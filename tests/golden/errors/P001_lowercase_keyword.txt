@@ -1,0 +1,7 @@
+error[P001]: expected `WHEN`, found identifier `when`
+  --> examples/errors/P001_lowercase_keyword.iot:3:12
+   |
+ 3 | RULE cool: when temp > 35 THEN fan ON;
+   |            ^^^^ keywords are UPPERCASE: write WHEN
+
+examples/errors/P001_lowercase_keyword.iot: 1 error, 0 warnings, 0 notes

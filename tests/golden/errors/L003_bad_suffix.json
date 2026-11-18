@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L003_bad_suffix.iot",
+  "diagnostics": [
+    {
+      "code": "L003",
+      "severity": "error",
+      "message": "bad duration suffix 'm'",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 29,
+      "hint": "write 5min",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

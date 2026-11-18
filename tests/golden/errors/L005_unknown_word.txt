@@ -1,0 +1,7 @@
+error[L005]: unknown word 'WHN'
+  --> examples/errors/L005_unknown_word.iot:3:12
+   |
+ 3 | RULE cool: WHN temp > 35 THEN fan ON;
+   |            ^^^ did you mean WHEN?
+
+examples/errors/L005_unknown_word.iot: 1 error, 0 warnings, 0 notes

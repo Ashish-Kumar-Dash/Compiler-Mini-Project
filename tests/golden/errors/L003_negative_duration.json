@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L003_negative_duration.iot",
+  "diagnostics": [
+    {
+      "code": "L003",
+      "severity": "error",
+      "message": "durations must be positive",
+      "line": 2,
+      "col": 32,
+      "end_line": 2,
+      "end_col": 35,
+      "hint": "write 5s",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

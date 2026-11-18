@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P001_two_actions.iot",
+  "diagnostics": [
+    {
+      "code": "P001",
+      "severity": "error",
+      "message": "expected ';', found `,`",
+      "line": 4,
+      "col": 38,
+      "end_line": 4,
+      "end_col": 39,
+      "hint": "one action per rule: write two rules",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

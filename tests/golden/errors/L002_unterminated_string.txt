@@ -1,0 +1,7 @@
+error[L002]: unterminated string
+  --> examples/errors/L002_unterminated_string.iot:2:40
+   |
+ 2 | RULE alert: WHEN temp > 45 THEN NOTIFY "Hot;
+   |                                        ^^^^^ close the string with " on the same line
+
+examples/errors/L002_unterminated_string.iot: 1 error, 0 warnings, 0 notes

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L006_not_equal.iot",
+  "diagnostics": [
+    {
+      "code": "L006",
+      "severity": "error",
+      "message": "'!=' is not supported",
+      "line": 3,
+      "col": 22,
+      "end_line": 3,
+      "end_col": 24,
+      "hint": "write two rules (one with <, one with >)",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

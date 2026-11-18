@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L008_notify_non_ascii.iot",
+  "diagnostics": [
+    {
+      "code": "L008",
+      "severity": "error",
+      "message": "NOTIFY text contains non-ASCII character 'é'",
+      "line": 2,
+      "col": 40,
+      "end_line": 2,
+      "end_col": 59,
+      "hint": "use printable ASCII characters only",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

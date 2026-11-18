@@ -1,0 +1,7 @@
+error[L001]: typographic quotes are not string delimiters
+  --> examples/errors/L001_smart_quotes.iot:2:40
+   |
+ 2 | RULE alert: WHEN temp > 45 THEN NOTIFY “Overheat”;
+   |                                        ^^^^^^^^^^ use ASCII double quotes "..."
+
+examples/errors/L001_smart_quotes.iot: 1 error, 0 warnings, 0 notes

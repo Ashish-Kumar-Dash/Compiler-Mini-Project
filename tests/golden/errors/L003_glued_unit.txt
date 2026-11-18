@@ -1,0 +1,7 @@
+error[L003]: unit glued to number: '35C'
+  --> examples/errors/L003_glued_unit.iot:3:24
+   |
+ 3 | RULE cool: WHEN temp > 35C THEN fan ON;
+   |                        ^^^ units need a space: 35 C
+
+examples/errors/L003_glued_unit.iot: 1 error, 0 warnings, 0 notes

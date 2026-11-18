@@ -1,0 +1,7 @@
+error[P001]: expected ';', found `,`
+  --> examples/errors/P001_two_actions.iot:4:38
+   |
+ 4 | RULE cool: WHEN temp > 35 THEN fan ON, heater OFF;
+   |                                      ^ one action per rule: write two rules
+
+examples/errors/P001_two_actions.iot: 1 error, 0 warnings, 0 notes

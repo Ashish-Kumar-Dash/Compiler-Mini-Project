@@ -1,0 +1,7 @@
+error[L001]: '.5' is not a valid number
+  --> examples/errors/L001_leading_dot.iot:3:24
+   |
+ 3 | RULE cool: WHEN temp > .5 THEN fan ON;
+   |                        ^^ write 0.5
+
+examples/errors/L001_leading_dot.iot: 1 error, 0 warnings, 0 notes

@@ -1,0 +1,7 @@
+error[L000]: file is not valid UTF-8 (byte 0xE9)
+  --> examples/errors/L000_not_utf8.iot:2:7
+   |
+ 2 | // caf� is not UTF-8 here
+   |       ^ save the file as UTF-8
+
+examples/errors/L000_not_utf8.iot: 1 error, 0 warnings, 0 notes

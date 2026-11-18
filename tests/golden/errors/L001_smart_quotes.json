@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L001_smart_quotes.iot",
+  "diagnostics": [
+    {
+      "code": "L001",
+      "severity": "error",
+      "message": "typographic quotes are not string delimiters",
+      "line": 2,
+      "col": 40,
+      "end_line": 2,
+      "end_col": 50,
+      "hint": "use ASCII double quotes \"...\"",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

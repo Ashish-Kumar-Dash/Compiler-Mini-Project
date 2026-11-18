@@ -1,0 +1,7 @@
+error[L001]: unexpected character U+2212
+  --> examples/errors/L001_confusable_minus.iot:1:39
+   |
+ 1 | SENSOR temp AT A0 ANALOG UNIT C RANGE −40..125;
+   |                                       ^ use the ASCII minus sign '-'
+
+examples/errors/L001_confusable_minus.iot: 1 error, 0 warnings, 0 notes

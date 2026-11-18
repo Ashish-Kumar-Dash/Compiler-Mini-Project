@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/P001_digital_with_unit.iot",
+  "diagnostics": [
+    {
+      "code": "P001",
+      "severity": "error",
+      "message": "expected ';', found `UNIT`",
+      "line": 1,
+      "col": 27,
+      "end_line": 1,
+      "end_col": 31,
+      "hint": "DIGITAL sensors take no UNIT or RANGE",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

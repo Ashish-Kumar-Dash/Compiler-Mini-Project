@@ -1,0 +1,7 @@
+error[L006]: '!=' is not supported
+  --> examples/errors/L006_not_equal.iot:3:22
+   |
+ 3 | RULE cool: WHEN temp != 30 THEN fan ON;
+   |                      ^^ write two rules (one with <, one with >)
+
+examples/errors/L006_not_equal.iot: 1 error, 0 warnings, 0 notes

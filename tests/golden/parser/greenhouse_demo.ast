@@ -1,0 +1,12 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125 @2:1
+SENSOR humidity AT A1 ANALOG UNIT PCT RANGE 0..100 @3:1
+ACTUATOR fan AT D7 @4:1
+ACTUATOR heater AT D8 @5:1
+RULE cool REALTIME 10ms: WHEN temp > 35 THEN fan ON @7:1
+RULE uncool REALTIME 10ms: WHEN temp < 30 THEN fan OFF @8:1
+RULE warm: WHEN avg(temp, 10000ms) < 18 THEN heater ON @9:1
+RULE unwarm: WHEN avg(temp, 10000ms) > 22 THEN heater OFF @10:1
+RULE alert: WHEN temp > 45 FOR 10000ms THEN NOTIFY 'Overheat' @11:1
+NEVER heater ON AND fan ON @13:1
+ENSURE fan ON WHEN temp > 50 @14:1
+FAILSAFE heater OFF @15:1

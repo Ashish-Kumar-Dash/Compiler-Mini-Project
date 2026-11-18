@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L007_mixed_case.iot",
+  "diagnostics": [
+    {
+      "code": "L007",
+      "severity": "error",
+      "message": "mixed-case word 'Temp'",
+      "line": 1,
+      "col": 8,
+      "end_line": 1,
+      "end_col": 12,
+      "hint": "identifiers are lowercase: write temp",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

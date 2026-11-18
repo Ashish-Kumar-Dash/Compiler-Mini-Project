@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L005_or.iot",
+  "diagnostics": [
+    {
+      "code": "L005",
+      "severity": "error",
+      "message": "unknown word 'OR'",
+      "line": 3,
+      "col": 27,
+      "end_line": 3,
+      "end_col": 29,
+      "hint": "OR is not supported: write two rules",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}

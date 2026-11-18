@@ -1,0 +1,7 @@
+error[L001]: unknown character '#'
+  --> examples/errors/L001_unknown_char.iot:3:22
+   |
+ 3 | RULE cool: WHEN temp # 35 THEN fan ON;
+   |                      ^
+
+examples/errors/L001_unknown_char.iot: 1 error, 0 warnings, 0 notes

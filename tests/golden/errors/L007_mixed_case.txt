@@ -1,0 +1,7 @@
+error[L007]: mixed-case word 'Temp'
+  --> examples/errors/L007_mixed_case.iot:1:8
+   |
+ 1 | SENSOR Temp AT A0 ANALOG UNIT C RANGE -40..125;
+   |        ^^^^ identifiers are lowercase: write temp
+
+examples/errors/L007_mixed_case.iot: 1 error, 0 warnings, 0 notes

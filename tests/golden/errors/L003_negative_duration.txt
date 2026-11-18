@@ -1,0 +1,7 @@
+error[L003]: durations must be positive
+  --> examples/errors/L003_negative_duration.iot:2:32
+   |
+ 2 | RULE alert: WHEN temp > 45 FOR -5s THEN NOTIFY "Overheat";
+   |                                ^^^ write 5s
+
+examples/errors/L003_negative_duration.iot: 1 error, 0 warnings, 0 notes

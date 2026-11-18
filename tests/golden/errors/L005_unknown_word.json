@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "file": "examples/errors/L005_unknown_word.iot",
+  "diagnostics": [
+    {
+      "code": "L005",
+      "severity": "error",
+      "message": "unknown word 'WHN'",
+      "line": 3,
+      "col": 12,
+      "end_line": 3,
+      "end_col": 15,
+      "hint": "did you mean WHEN?",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {}
+}
