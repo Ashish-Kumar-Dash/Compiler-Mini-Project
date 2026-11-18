@@ -1,0 +1,9 @@
+# Generated output and goldens must be byte-identical on every OS (Architecture §0 rule 7).
+* text=auto eol=lf
+*.iot text eol=lf
+*.csv text eol=lf
+*.ps1 text eol=crlf
+tests/golden/** -text
+*.pptx binary
+*.png binary
+*.jpg binary
