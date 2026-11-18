@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iotc"
+version = "0.3.0"
+description = "IoT Sensor DSL compiler for the Arduino UNO Q (MCU sketch + Linux app + Bridge)"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+iotc = "iotc.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["iotc*"]
+
+[tool.setuptools.package-data]
+"iotc.backend" = ["templates/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "diff: differential test (needs WSL or native g++)",
+    "cosim: co-simulation of host sketch + generated main.py (needs g++)",
+    "arduino: arduino-cli compile checks (needs arduino-cli)",
+    "slow: long-running tests (fuzz)",
+]
