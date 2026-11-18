@@ -321,8 +321,9 @@ mode:
 Order: symbol table (`symbols.py`) → name resolution → units (`units.py`) → pins (`pins.py`, using
 the board's pin map) → per-construct checks (`checker.py`). After this stage, all thresholds are
 `Fraction`s in the sensor's unit and later stages never see units. Did-you-mean for S001 only
-considers names of the expected kind, distance ≤ max(1, len/3) capped at 2, ties broken by source
-order.
+considers names of the expected kind: Levenshtein distance ≤ max(1, len/3) capped at 2; failing
+that, a name that is a prefix of the other (≥ 3 characters) or shares a prefix of ≥ 4 characters
+(`temprature` → `temp`); ties broken by source order.
 
 ### 5.5 Diagnostics (`diagnostics.py`)
 
