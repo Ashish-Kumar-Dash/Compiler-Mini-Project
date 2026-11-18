@@ -1,0 +1,17 @@
+// greenhouse_demo for the classic Uno in Wokwi (--board uno --target mcu-only): pots on A0/A1,
+// LEDs on D7 (fan) and D8 (heater). Everything runs on the MCU.
+SENSOR   temp     AT A0 ANALOG UNIT C   RANGE -40..125;
+SENSOR   humidity AT A1 ANALOG UNIT PCT RANGE 0..100;
+ACTUATOR fan      AT D7;
+ACTUATOR heater   AT D8;
+
+RULE cool   REALTIME 20ms: WHEN temp > 35 THEN fan ON;
+RULE uncool REALTIME 20ms: WHEN temp < 30 THEN fan OFF;
+RULE warm:   WHEN avg(temp, 10s) < 18 THEN heater ON;
+RULE unwarm: WHEN avg(temp, 10s) > 22 THEN heater OFF;
+RULE alert:  WHEN temp > 45 FOR 5s THEN NOTIFY "Overheat";
+RULE dry:    WHEN humidity < 20 FOR 3s THEN NOTIFY "Air too dry";
+
+SAFETY NEVER heater ON AND fan ON;
+SAFETY ENSURE fan ON WHEN temp > 50;
+FAILSAFE heater OFF;

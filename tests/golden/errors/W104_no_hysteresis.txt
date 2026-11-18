@@ -1,0 +1,27 @@
+warning[W104]: no hysteresis: 'cool' (fan ON) and 'uncool' (fan OFF) touch at temp = 35 C
+  --> examples/errors/W104_no_hysteresis.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp <= 35 THEN fan OFF;
+   |      ^^^^^^ leave a gap so fan does not chatter
+   = note: 'cool' sets fan ON (examples/errors/W104_no_hysteresis.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W104_no_hysteresis.iot:4:6)
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp > 35   ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool  temp <= 35  ⇔  code <= 465  (code 465 = 35 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 2 rule pixels, 1 actuator blocks
+
+examples/errors/W104_no_hysteresis.iot: 0 errors, 1 warning, 0 notes

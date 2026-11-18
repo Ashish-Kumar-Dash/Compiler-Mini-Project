@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "file": "examples/errors/E108_ensures_collide.iot",
+  "diagnostics": [
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)",
+      "line": 7,
+      "col": 6,
+      "end_line": 7,
+      "end_col": 12,
+      "hint": null,
+      "related": [
+        {
+          "line": 6,
+          "col": 6,
+          "end_line": 6,
+          "end_col": 10,
+          "message": "'cool' sets fan ON"
+        },
+        {
+          "line": 7,
+          "col": 6,
+          "end_line": 7,
+          "end_col": 12,
+          "message": "'uncool' sets fan OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'warm' (heater ON) and 'unwarm' (heater OFF)",
+      "line": 9,
+      "col": 6,
+      "end_line": 9,
+      "end_col": 12,
+      "hint": null,
+      "related": [
+        {
+          "line": 8,
+          "col": 6,
+          "end_line": 8,
+          "end_col": 10,
+          "message": "'warm' sets heater ON"
+        },
+        {
+          "line": 9,
+          "col": 6,
+          "end_line": 9,
+          "end_col": 12,
+          "message": "'unwarm' sets heater OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "W107",
+      "severity": "warning",
+      "message": "ENSURE fan ON also forces heater OFF (through NEVER pairs)",
+      "line": 11,
+      "col": 1,
+      "end_line": 11,
+      "end_col": 37,
+      "hint": "forced partners override their rules while the condition holds",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "E108",
+      "severity": "error",
+      "message": "ENSURE#1 and ENSURE#2 force fan ON and OFF when temp ∈ (50, 125] C and humidity ∈ [0, 10) PCT",
+      "line": 12,
+      "col": 1,
+      "end_line": 12,
+      "end_col": 44,
+      "hint": "make the ENSURE conditions disjoint",
+      "related": [
+        {
+          "line": 11,
+          "col": 1,
+          "end_line": 11,
+          "end_col": 37,
+          "message": "ENSURE#1 here"
+        }
+      ],
+      "data": {
+        "overlap": "temp ∈ (50, 125] C and humidity ∈ [0, 10) PCT"
+      }
+    },
+    {
+      "code": "W107",
+      "severity": "warning",
+      "message": "ENSURE heater ON also forces fan OFF (through NEVER pairs)",
+      "line": 12,
+      "col": 1,
+      "end_line": 12,
+      "end_col": 44,
+      "hint": "forced partners override their rules while the condition holds",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "cool",
+        "condition": "temp > 35",
+        "code": "code >= 466  (code 466 = 35.16 C)"
+      },
+      {
+        "where": "uncool",
+        "condition": "temp < 30",
+        "code": "code <= 433  (code 433 = 29.84 C)"
+      },
+      {
+        "where": "warm",
+        "condition": "temp < 10",
+        "code": "code <= 309  (code 309 = 9.84 C)"
+      },
+      {
+        "where": "unwarm",
+        "condition": "temp > 15",
+        "code": "code >= 342  (code 342 = 15.16 C)"
+      },
+      {
+        "where": "ENSURE#1",
+        "condition": "temp > 50",
+        "code": "code >= 559  (code 559 = 50.16 C)"
+      },
+      {
+        "where": "ENSURE#2",
+        "condition": "humidity < 10",
+        "code": "code <= 102  (code 102 = 9.97 PCT)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "cool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "uncool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "warm",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "unwarm",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "SAFETY",
+        "runs_on": "MCU",
+        "reason": "MCU owns the pins and can veto any write"
+      }
+    ],
+    "safety": [
+      {
+        "status": "proven",
+        "property": "NEVER heater ON AND fan ON",
+        "detail": [
+          "proven: every ON request is covered by an OFF request of the partner (OFF wins); the monitor still checks it"
+        ]
+      },
+      {
+        "status": "proven",
+        "property": "ENSURE fan ON WHEN temp > 50",
+        "detail": [
+          "enforced by the MCU monitor every pass; closure: fan ON, heater OFF (W107)"
+        ]
+      },
+      {
+        "status": "proven",
+        "property": "ENSURE heater ON WHEN humidity < 10",
+        "detail": [
+          "enforced by the MCU monitor every pass; closure: fan OFF, heater ON (W107)"
+        ]
+      }
+    ],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 2,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 239,
+      "bridge_percent": 2.1,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "2 sensor bars, 4 rule pixels, 2 actuator blocks"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+// ENSURE closures follow NEVER pairs transitively: forcing fan ON forces heater OFF, which in
+// turn forces vent ON (W107 lists the whole chain).
+SENSOR   temp   AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan    AT D7;
+ACTUATOR heater AT D8;
+ACTUATOR vent   AT D9;
+
+RULE cool:   WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+RULE warm:   WHEN temp < 10 THEN heater ON;
+RULE unwarm: WHEN temp > 15 THEN heater OFF;
+RULE air:    WHEN temp > 25 THEN vent ON;
+RULE still:  WHEN temp < 20 THEN vent OFF;
+
+SAFETY NEVER fan ON AND heater ON;
+SAFETY NEVER heater OFF AND vent OFF;
+SAFETY ENSURE fan ON WHEN temp > 50;
+FAILSAFE heater ON;

@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "file": "examples/errors/P205_bridge_budget.iot",
+  "diagnostics": [
+    {
+      "code": "I122",
+      "severity": "info",
+      "message": "LED matrix display truncated: 8 sensors (shows 4)",
+      "line": null,
+      "col": null,
+      "end_line": null,
+      "end_col": null,
+      "hint": "the first ones in source order are shown",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "P205",
+      "severity": "warning",
+      "message": "estimated Bridge traffic 3929 B/s is 34% of the 115200-baud link (budget 30%)",
+      "line": null,
+      "col": null,
+      "end_line": null,
+      "end_col": null,
+      "hint": "raise --sample-ms or use fewer sensors",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "n0",
+        "condition": "s0 > 50",
+        "code": "code >= 512  (code 512 = 50.05 C)"
+      },
+      {
+        "where": "n1",
+        "condition": "s1 > 50",
+        "code": "code >= 512  (code 512 = 50.05 C)"
+      },
+      {
+        "where": "n2",
+        "condition": "s2 > 50",
+        "code": "code >= 512  (code 512 = 50.05 C)"
+      },
+      {
+        "where": "n3",
+        "condition": "s3 > 50",
+        "code": "code >= 512  (code 512 = 50.05 C)"
+      },
+      {
+        "where": "n4",
+        "condition": "s4 > 50",
+        "code": "code >= 512  (code 512 = 50.05 C)"
+      },
+      {
+        "where": "n5",
+        "condition": "s5 > 50",
+        "code": "code >= 512  (code 512 = 50.05 C)"
+      },
+      {
+        "where": "m0",
+        "condition": "d0 == 1",
+        "code": "code >= 1"
+      },
+      {
+        "where": "m1",
+        "condition": "d1 == 1",
+        "code": "code >= 1"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "n0",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "n1",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "n2",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "n3",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "n4",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "n5",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "m0",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "m1",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      }
+    ],
+    "safety": [],
+    "resources": {
+      "sample_ms": 10,
+      "sensors": 8,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 3929,
+      "bridge_percent": 34.1,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "4 sensor bars, 8 rule pixels, 0 actuator blocks"
+    }
+  }
+}

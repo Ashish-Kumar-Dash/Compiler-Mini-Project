@@ -1,0 +1,37 @@
+info[I122]: LED matrix display truncated: 8 sensors (shows 4)
+  = hint: the first ones in source order are shown
+
+warning[P205]: estimated Bridge traffic 3929 B/s is 34% of the 115200-baud link (budget 30%)
+  = hint: raise --sample-ms or use fewer sensors
+
+Code thresholds (board unoq, 10-bit ADC)
+  n0  s0 > 50  ⇔  code >= 512  (code 512 = 50.05 C)
+  n1  s1 > 50  ⇔  code >= 512  (code 512 = 50.05 C)
+  n2  s2 > 50  ⇔  code >= 512  (code 512 = 50.05 C)
+  n3  s3 > 50  ⇔  code >= 512  (code 512 = 50.05 C)
+  n4  s4 > 50  ⇔  code >= 512  (code 512 = 50.05 C)
+  n5  s5 > 50  ⇔  code >= 512  (code 512 = 50.05 C)
+  m0  d0 == 1  ⇔  code >= 1
+  m1  d1 == 1  ⇔  code >= 1
+
+Placement
+  rule      runs on  reason
+  n0        Linux    NOTIFY leaves the MCU
+  n1        Linux    NOTIFY leaves the MCU
+  n2        Linux    NOTIFY leaves the MCU
+  n3        Linux    NOTIFY leaves the MCU
+  n4        Linux    NOTIFY leaves the MCU
+  n5        Linux    NOTIFY leaves the MCU
+  m0        Linux    NOTIFY leaves the MCU
+  m1        Linux    NOTIFY leaves the MCU
+
+Resources (board unoq, target unoq)
+  sample period      10 ms, 8 sensors
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~3929 B/s (34.1% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         4 sensor bars, 8 rule pixels, 0 actuator blocks
+
+examples/errors/P205_bridge_budget.iot: 0 errors, 1 warning, 1 note

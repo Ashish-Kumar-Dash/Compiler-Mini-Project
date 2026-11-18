@@ -1,0 +1,27 @@
+error[E103]: conflict: 'cool' sets fan ON and 'dry' sets it OFF when temp ∈ (35, 125] C and humidity ∈ (80, 100] PCT
+  --> examples/errors/E103_cross_variable.iot:5:6
+   |
+ 5 | RULE dry: WHEN humidity > 80 THEN fan OFF;
+   |      ^^^ OFF wins at runtime; make the two conditions disjoint
+   = note: 'cool' sets fan ON (examples/errors/E103_cross_variable.iot:4:6)
+   = note: 'dry' sets fan OFF (examples/errors/E103_cross_variable.iot:5:6)
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool  temp > 35      ⇔  code >= 466  (code 466 = 35.16 C)
+  dry   humidity > 80  ⇔  code >= 819  (code 819 = 80.06 PCT)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  dry       MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 2 sensors
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~239 B/s (2.1% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         2 sensor bars, 2 rule pixels, 1 actuator blocks
+
+examples/errors/E103_cross_variable.iot: 1 error, 0 warnings, 0 notes

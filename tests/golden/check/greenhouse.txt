@@ -1,0 +1,75 @@
+warning[S050]: sensor 'humidity' is never used
+  --> examples/greenhouse.iot:3:10
+   |
+ 3 | SENSOR   humidity AT A1 ANALOG UNIT PCT RANGE 0..100;
+   |          ^^^^^^^^ remove it or use it in a rule
+
+warning[W111]: REALTIME rule 'cool' (fan ON) can be refused by NEVER heater ON AND fan ON
+  --> examples/greenhouse.iot:7:6
+   |
+ 7 | RULE cool   REALTIME 10ms: WHEN temp > 35 THEN fan ON;
+   |      ^^^^ its deadline covers evaluation, not the outcome
+
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/greenhouse.iot:8:6
+   |
+ 8 | RULE uncool REALTIME 10ms: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/greenhouse.iot:7:6)
+   = note: 'uncool' sets fan OFF (examples/greenhouse.iot:8:6)
+
+warning[W111]: REALTIME rule 'uncool' (fan OFF) can be overridden by ENSURE#1
+  --> examples/greenhouse.iot:8:6
+   |
+ 8 | RULE uncool REALTIME 10ms: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^ its deadline covers evaluation, not the outcome
+
+info[I105]: hysteresis gap of 4 C between 'warm' (heater ON) and 'unwarm' (heater OFF)
+   --> examples/greenhouse.iot:10:6
+    |
+ 10 | RULE unwarm: WHEN avg(temp, 5min) > 22 THEN heater OFF;
+    |      ^^^^^^
+    = note: 'warm' sets heater ON (examples/greenhouse.iot:9:6)
+    = note: 'unwarm' sets heater OFF (examples/greenhouse.iot:10:6)
+
+warning[W107]: ENSURE fan ON also forces heater OFF (through NEVER pairs)
+   --> examples/greenhouse.iot:14:1
+    |
+ 14 | SAFETY ENSURE fan ON WHEN temp > 50;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ forced partners override their rules while the condition holds
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool      temp > 35             ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool    temp < 30             ⇔  code <= 433  (code 433 = 29.84 C)
+  warm      avg(temp, 5min) < 18  ⇔  5·sum < 1798·count  (average code < 359.6)
+  unwarm    avg(temp, 5min) > 22  ⇔  5·sum > 1922·count  (average code > 384.4)
+  alert     temp > 45             ⇔  code >= 528  (code 528 = 45.16 C)
+  ENSURE#1  temp > 50             ⇔  code >= 559  (code 559 = 50.16 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      REALTIME 10ms
+  uncool    MCU      REALTIME 10ms
+  warm      Linux    avg(temp, 5min): window history kept on Linux
+  unwarm    Linux    avg(temp, 5min): window history kept on Linux
+  alert     Linux    NOTIFY leaves the MCU
+  SAFETY    MCU      MCU owns the pins and can veto any write
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ⚠ NEVER heater ON AND fan ON    not proven: warm (heater ON on avg(temp, 5min) < 18) is not covered by a fan OFF rule
+                                  and cool (fan ON on temp > 35) can hold at the same time
+                                  → enforced by the MCU monitor (incumbent wins)
+  ✓ ENSURE fan ON WHEN temp > 50  enforced by the MCU monitor every pass; closure: fan ON, heater OFF (W107)
+  ✓ FAILSAFE heater OFF           initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 2 sensors
+  window             temp over 5min: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    2 of 32
+  Bridge MCU->Linux  ~239 B/s (2.1% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         2 sensor bars, 5 rule pixels, 2 actuator blocks
+
+examples/greenhouse.iot: 0 errors, 4 warnings, 2 notes

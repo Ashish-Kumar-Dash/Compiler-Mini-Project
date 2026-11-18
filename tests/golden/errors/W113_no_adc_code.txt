@@ -1,0 +1,36 @@
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W113_no_adc_code.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W113_no_adc_code.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W113_no_adc_code.iot:4:6)
+
+warning[W113]: rule 'blip' can never fire on the board: no ADC code lies in temp ∈ (35, 35.1) C (codes step by about 0.1613 C)
+  --> examples/errors/W113_no_adc_code.iot:5:17
+   |
+ 5 | RULE blip: WHEN temp > 35 AND temp < 35.1 THEN NOTIFY "blip";
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^ widen the interval to at least one ADC step (see the code thresholds)
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp > 35    ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool  temp < 30    ⇔  code <= 433  (code 433 = 29.84 C)
+  blip    temp > 35    ⇔  code >= 466  (code 466 = 35.16 C)
+  blip    temp < 35.1  ⇔  code <= 465  (code 465 = 35 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+  blip      Linux    NOTIFY leaves the MCU
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 3 rule pixels, 1 actuator blocks
+
+examples/errors/W113_no_adc_code.iot: 0 errors, 1 warning, 1 note

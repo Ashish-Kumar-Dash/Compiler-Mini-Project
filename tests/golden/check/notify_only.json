@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "file": "examples/notify_only.iot",
+  "diagnostics": [],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "hot",
+        "condition": "temp > 30",
+        "code": "code >= 435  (code 435 = 30.16 C)"
+      },
+      {
+        "where": "humid",
+        "condition": "humidity > 70",
+        "code": "code >= 717  (code 717 = 70.09 PCT)"
+      },
+      {
+        "where": "humid",
+        "condition": "temp > 25",
+        "code": "code >= 404  (code 404 = 25.16 C)"
+      },
+      {
+        "where": "trend",
+        "condition": "avg(temp, 1min) > 28",
+        "code": "5·sum > 2108·count  (average code > 421.6)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "hot",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "humid",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "trend",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      }
+    ],
+    "safety": [],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 2,
+      "windows": [
+        "temp over 1min: 32 buckets on Linux"
+      ],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 239,
+      "bridge_percent": 2.1,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "2 sensor bars, 3 rule pixels, 0 actuator blocks"
+    }
+  }
+}

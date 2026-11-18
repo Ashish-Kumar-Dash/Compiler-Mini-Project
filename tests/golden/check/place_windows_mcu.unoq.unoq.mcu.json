@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "file": "examples/place_windows_mcu.iot",
+  "diagnostics": [
+    {
+      "code": "S031",
+      "severity": "warning",
+      "message": "window 2s spans only 20 sample periods; 20 buckets used",
+      "line": 6,
+      "col": 48,
+      "end_line": 6,
+      "end_col": 50,
+      "hint": "windows of at least 3200ms use all 32 buckets",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 20 PCT between 'relieve' (valve ON) and 'close' (valve OFF)",
+      "line": 7,
+      "col": 6,
+      "end_line": 7,
+      "end_col": 11,
+      "hint": null,
+      "related": [
+        {
+          "line": 6,
+          "col": 6,
+          "end_line": 6,
+          "end_col": 13,
+          "message": "'relieve' sets valve ON"
+        },
+        {
+          "line": 7,
+          "col": 6,
+          "end_line": 7,
+          "end_col": 11,
+          "message": "'close' sets valve OFF"
+        }
+      ],
+      "data": {
+        "gap": "20",
+        "codes": null
+      }
+    },
+    {
+      "code": "W111",
+      "severity": "warning",
+      "message": "REALTIME rule 'close' (valve OFF) can be overridden by FAILSAFE",
+      "line": 7,
+      "col": 6,
+      "end_line": 7,
+      "end_col": 11,
+      "hint": "its deadline covers evaluation, not the outcome",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "W119",
+      "severity": "warning",
+      "message": "FAILSAFE valve ON overrides MCU rule 'close' while Linux is down",
+      "line": 7,
+      "col": 6,
+      "end_line": 7,
+      "end_col": 11,
+      "hint": "'close' cannot set valve OFF without the Linux heartbeat",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "relieve",
+        "condition": "avg(pressure, 2s) > 80",
+        "code": "5·sum > 4092·count  (average code > 818.4)"
+      },
+      {
+        "where": "close",
+        "condition": "avg(pressure, 2s) < 60",
+        "code": "5·sum < 3069·count  (average code < 613.8)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "relieve",
+        "runs_on": "MCU",
+        "reason": "REALTIME 10ms"
+      },
+      {
+        "rule": "close",
+        "runs_on": "MCU",
+        "reason": "REALTIME 10ms"
+      },
+      {
+        "rule": "FAILSAFE",
+        "runs_on": "MCU",
+        "reason": "applied by the MCU when Linux heartbeats stop"
+      }
+    ],
+    "safety": [
+      {
+        "status": "proven",
+        "property": "FAILSAFE valve ON",
+        "detail": [
+          "initial state; applied after 2000 ms without a fresh heartbeat"
+        ]
+      }
+    ],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 1,
+      "windows": [
+        "pressure over 2s: 20 buckets on MCU"
+      ],
+      "mcu_window_bytes": 320,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 209,
+      "bridge_percent": 1.8,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "1 sensor bars, 2 rule pixels, 1 actuator blocks"
+    }
+  }
+}

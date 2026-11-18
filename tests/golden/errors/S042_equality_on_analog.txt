@@ -4,4 +4,30 @@ warning[S042]: '==' on ANALOG sensor 'temp' is almost never true
  3 | RULE cool: WHEN temp == 30 THEN fan ON;
    |                      ^^ use a range: x >= a AND x <= b
 
-examples/errors/S042_equality_on_analog.iot: 0 errors, 1 warning, 0 notes
+info[I105]: hysteresis gap of 10 C (651 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/S042_equality_on_analog.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 20 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/S042_equality_on_analog.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/S042_equality_on_analog.iot:4:6)
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp == 30  ⇔  code == 434  (code 434 = 30 C)
+  uncool  temp < 20   ⇔  code <= 371  (code 371 = 19.84 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 2 rule pixels, 1 actuator blocks
+
+examples/errors/S042_equality_on_analog.iot: 0 errors, 1 warning, 1 note

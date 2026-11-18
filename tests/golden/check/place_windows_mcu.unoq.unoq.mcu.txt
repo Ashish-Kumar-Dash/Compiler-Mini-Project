@@ -1,0 +1,49 @@
+warning[S031]: window 2s spans only 20 sample periods; 20 buckets used
+  --> examples/place_windows_mcu.iot:6:48
+   |
+ 6 | RULE relieve REALTIME 10ms: WHEN avg(pressure, 2s) > 80 THEN valve ON;
+   |                                                ^^ windows of at least 3200ms use all 32 buckets
+
+info[I105]: hysteresis gap of 20 PCT between 'relieve' (valve ON) and 'close' (valve OFF)
+  --> examples/place_windows_mcu.iot:7:6
+   |
+ 7 | RULE close   REALTIME 10ms: WHEN avg(pressure, 2s) < 60 THEN valve OFF;
+   |      ^^^^^
+   = note: 'relieve' sets valve ON (examples/place_windows_mcu.iot:6:6)
+   = note: 'close' sets valve OFF (examples/place_windows_mcu.iot:7:6)
+
+warning[W111]: REALTIME rule 'close' (valve OFF) can be overridden by FAILSAFE
+  --> examples/place_windows_mcu.iot:7:6
+   |
+ 7 | RULE close   REALTIME 10ms: WHEN avg(pressure, 2s) < 60 THEN valve OFF;
+   |      ^^^^^ its deadline covers evaluation, not the outcome
+
+warning[W119]: FAILSAFE valve ON overrides MCU rule 'close' while Linux is down
+  --> examples/place_windows_mcu.iot:7:6
+   |
+ 7 | RULE close   REALTIME 10ms: WHEN avg(pressure, 2s) < 60 THEN valve OFF;
+   |      ^^^^^ 'close' cannot set valve OFF without the Linux heartbeat
+
+Code thresholds (board unoq, 10-bit ADC)
+  relieve  avg(pressure, 2s) > 80  ⇔  5·sum > 4092·count  (average code > 818.4)
+  close    avg(pressure, 2s) < 60  ⇔  5·sum < 3069·count  (average code < 613.8)
+
+Placement
+  rule      runs on  reason
+  relieve   MCU      REALTIME 10ms
+  close     MCU      REALTIME 10ms
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ✓ FAILSAFE valve ON  initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             pressure over 2s: 20 buckets on MCU
+  MCU window RAM     320 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 2 rule pixels, 1 actuator blocks
+
+examples/place_windows_mcu.iot: 0 errors, 3 warnings, 1 note

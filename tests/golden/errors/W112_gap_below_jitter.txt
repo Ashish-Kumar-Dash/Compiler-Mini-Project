@@ -1,0 +1,35 @@
+info[I105]: hysteresis gap of 0.1 C (1 ADC code) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W112_gap_below_jitter.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 34.9 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W112_gap_below_jitter.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W112_gap_below_jitter.iot:4:6)
+
+warning[W112]: hysteresis dead band of 1 code is narrower than the ADC jitter (±2 codes): fan may chatter
+  --> examples/errors/W112_gap_below_jitter.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 34.9 THEN fan OFF;
+   |      ^^^^^^ widen the gap to at least 5 codes
+   = note: 'cool' sets fan ON (examples/errors/W112_gap_below_jitter.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W112_gap_below_jitter.iot:4:6)
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp > 35    ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool  temp < 34.9  ⇔  code <= 464  (code 464 = 34.84 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 2 rule pixels, 1 actuator blocks
+
+examples/errors/W112_gap_below_jitter.iot: 0 errors, 1 warning, 1 note

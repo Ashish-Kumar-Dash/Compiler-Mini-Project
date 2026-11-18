@@ -17,9 +17,9 @@ from iotc.diagnostics import SEVERITY
 
 ROOT = Path(__file__).resolve().parents[1]
 ERRORS = sorted((ROOT / "examples" / "errors").glob("*.iot"))
-# Codes whose stage exists today; files for later stages are skipped until that stage lands.
-IMPLEMENTED_PREFIXES = ("L", "P0", "S", "P2")
-PENDING = {"P205"}  # resource report lands with the analyses (day 4)
+# Every stage that emits diagnostics exists; the prefix filter stays for future codes.
+IMPLEMENTED_PREFIXES = ("L", "P0", "S", "P2", "W", "E", "I")
+PENDING: set[str] = set()
 
 
 def _code(path: Path) -> str:

@@ -1,0 +1,35 @@
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/I118_window_full_range.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/I118_window_full_range.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/I118_window_full_range.iot:4:6)
+
+info[I118]: rule 'ping' fires whenever its window has data
+  --> examples/errors/I118_window_full_range.iot:5:17
+   |
+ 5 | RULE ping: WHEN avg(temp, 10s) >= -40 THEN NOTIFY "data";
+   |                 ^^^^^^^^^^^^^^^^^^^^^ a windowed comparison is false only while the window is empty
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp > 35              ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool  temp < 30              ⇔  code <= 433  (code 433 = 29.84 C)
+  ping    avg(temp, 10s) >= -40  ⇔  1·sum >= 0·count  (average code >= 0)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+  ping      Linux    NOTIFY leaves the MCU
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             temp over 10s: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 3 rule pixels, 1 actuator blocks
+
+examples/errors/I118_window_full_range.iot: 0 errors, 0 warnings, 2 notes

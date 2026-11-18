@@ -1,0 +1,22 @@
+Code thresholds (board unoq, 10-bit ADC)
+  hot    temp > 30             ⇔  code >= 435  (code 435 = 30.16 C)
+  humid  humidity > 70         ⇔  code >= 717  (code 717 = 70.09 PCT)
+  humid  temp > 25             ⇔  code >= 404  (code 404 = 25.16 C)
+  trend  avg(temp, 1min) > 28  ⇔  5·sum > 2108·count  (average code > 421.6)
+
+Placement
+  rule      runs on  reason
+  hot       Linux    NOTIFY leaves the MCU
+  humid     Linux    NOTIFY leaves the MCU
+  trend     Linux    NOTIFY leaves the MCU
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 2 sensors
+  window             temp over 1min: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~239 B/s (2.1% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         2 sensor bars, 3 rule pixels, 0 actuator blocks
+
+examples/notify_only.iot: 0 errors, 0 warnings, 0 notes

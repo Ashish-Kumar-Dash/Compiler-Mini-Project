@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "file": "examples/errors/W112_gap_below_jitter.iot",
+  "diagnostics": [
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 0.1 C (1 ADC code) between 'cool' (fan ON) and 'uncool' (fan OFF)",
+      "line": 4,
+      "col": 6,
+      "end_line": 4,
+      "end_col": 12,
+      "hint": null,
+      "related": [
+        {
+          "line": 3,
+          "col": 6,
+          "end_line": 3,
+          "end_col": 10,
+          "message": "'cool' sets fan ON"
+        },
+        {
+          "line": 4,
+          "col": 6,
+          "end_line": 4,
+          "end_col": 12,
+          "message": "'uncool' sets fan OFF"
+        }
+      ],
+      "data": {
+        "gap": "0.1",
+        "codes": 1
+      }
+    },
+    {
+      "code": "W112",
+      "severity": "warning",
+      "message": "hysteresis dead band of 1 code is narrower than the ADC jitter (±2 codes): fan may chatter",
+      "line": 4,
+      "col": 6,
+      "end_line": 4,
+      "end_col": 12,
+      "hint": "widen the gap to at least 5 codes",
+      "related": [
+        {
+          "line": 3,
+          "col": 6,
+          "end_line": 3,
+          "end_col": 10,
+          "message": "'cool' sets fan ON"
+        },
+        {
+          "line": 4,
+          "col": 6,
+          "end_line": 4,
+          "end_col": 12,
+          "message": "'uncool' sets fan OFF"
+        }
+      ],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "cool",
+        "condition": "temp > 35",
+        "code": "code >= 466  (code 466 = 35.16 C)"
+      },
+      {
+        "where": "uncool",
+        "condition": "temp < 34.9",
+        "code": "code <= 464  (code 464 = 34.84 C)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "cool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "uncool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      }
+    ],
+    "safety": [],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 1,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 209,
+      "bridge_percent": 1.8,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "1 sensor bars, 2 rule pixels, 1 actuator blocks"
+    }
+  }
+}

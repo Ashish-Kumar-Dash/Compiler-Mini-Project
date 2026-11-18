@@ -1,0 +1,9 @@
+// REALTIME + window: an error with the default --place-windows=linux (P201),
+// valid with --place-windows=mcu, which keeps the window on the MCU.
+SENSOR   pressure AT A0 ANALOG UNIT PCT RANGE 0..100;
+ACTUATOR valve    AT D7;
+
+RULE relieve REALTIME 10ms: WHEN avg(pressure, 2s) > 80 THEN valve ON;
+RULE close   REALTIME 10ms: WHEN avg(pressure, 2s) < 60 THEN valve OFF;
+
+FAILSAFE valve ON;

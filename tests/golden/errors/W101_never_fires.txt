@@ -1,0 +1,36 @@
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W101_never_fires.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W101_never_fires.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W101_never_fires.iot:4:6)
+
+warning[W101]: rule 'odd' can never fire: no value of temp satisfies temp > 40 AND temp < 30
+  --> examples/errors/W101_never_fires.iot:5:16
+   |
+ 5 | RULE odd: WHEN temp > 40 AND temp < 30 THEN fan ON;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^ the conditions contradict each other or the sensor's RANGE
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp > 35  ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool  temp < 30  ⇔  code <= 433  (code 433 = 29.84 C)
+  odd     temp > 40  ⇔  code >= 497  (code 497 = 40.16 C)
+  odd     temp < 30  ⇔  code <= 433  (code 433 = 29.84 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+  odd       MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 3 rule pixels, 1 actuator blocks
+
+examples/errors/W101_never_fires.iot: 0 errors, 1 warning, 1 note

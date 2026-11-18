@@ -13,7 +13,7 @@ BASE = "SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;\nACTUATOR fan AT D7;\n"
 
 
 def codes(text, opts=None):
-    return [d.code for d in compile_text(text, opts).sink.sorted()]
+    return [d.code for d in compile_text(text, opts).sink.sorted() if d.severity != "info"]
 
 
 @pytest.mark.parametrize("word,cands,expected", [

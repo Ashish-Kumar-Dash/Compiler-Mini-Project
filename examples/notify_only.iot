@@ -1,0 +1,7 @@
+// Monitoring only: no actuators, every rule is a NOTIFY placed on Linux.
+SENSOR temp     AT A0 ANALOG UNIT C   RANGE -40..125;
+SENSOR humidity AT A1 ANALOG UNIT PCT RANGE 0..100;
+
+RULE hot:    WHEN temp > 30 FOR 10s THEN NOTIFY "It is hot";
+RULE humid:  WHEN humidity > 70 AND temp > 25 THEN NOTIFY "Muggy";
+RULE trend:  WHEN avg(temp, 1min) > 28 THEN NOTIFY "Warming trend";

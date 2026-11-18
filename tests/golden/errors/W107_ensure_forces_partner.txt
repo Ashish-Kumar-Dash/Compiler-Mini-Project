@@ -1,0 +1,51 @@
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W107_ensure_forces_partner.iot:5:6
+   |
+ 5 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W107_ensure_forces_partner.iot:4:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W107_ensure_forces_partner.iot:5:6)
+
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'warm' (heater ON) and 'unwarm' (heater OFF)
+  --> examples/errors/W107_ensure_forces_partner.iot:7:6
+   |
+ 7 | RULE unwarm: WHEN temp > 15 THEN heater OFF;
+   |      ^^^^^^
+   = note: 'warm' sets heater ON (examples/errors/W107_ensure_forces_partner.iot:6:6)
+   = note: 'unwarm' sets heater OFF (examples/errors/W107_ensure_forces_partner.iot:7:6)
+
+warning[W107]: ENSURE fan ON also forces heater OFF (through NEVER pairs)
+  --> examples/errors/W107_ensure_forces_partner.iot:9:1
+   |
+ 9 | SAFETY ENSURE fan ON WHEN temp > 50;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ forced partners override their rules while the condition holds
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool      temp > 35  ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool    temp < 30  ⇔  code <= 433  (code 433 = 29.84 C)
+  warm      temp < 10  ⇔  code <= 309  (code 309 = 9.84 C)
+  unwarm    temp > 15  ⇔  code >= 342  (code 342 = 15.16 C)
+  ENSURE#1  temp > 50  ⇔  code >= 559  (code 559 = 50.16 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+  warm      MCU      default: no Bridge hop
+  unwarm    MCU      default: no Bridge hop
+  SAFETY    MCU      MCU owns the pins and can veto any write
+
+Safety
+  ✓ NEVER heater ON AND fan ON    proven: every ON request is covered by an OFF request of the partner (OFF wins); the monitor still checks it
+  ✓ ENSURE fan ON WHEN temp > 50  enforced by the MCU monitor every pass; closure: fan ON, heater OFF (W107)
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 4 rule pixels, 2 actuator blocks
+
+examples/errors/W107_ensure_forces_partner.iot: 0 errors, 1 warning, 2 notes

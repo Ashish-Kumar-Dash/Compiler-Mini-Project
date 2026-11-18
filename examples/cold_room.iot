@@ -1,0 +1,14 @@
+// Cold room: compressor with hysteresis, door alarm after 30 s, light while the door is open.
+SENSOR   temp  AT A0 ANALOG UNIT C RANGE -30..20;
+SENSOR   door  AT D2 DIGITAL;
+ACTUATOR compressor AT D7;
+ACTUATOR light      AT D8;
+
+RULE chill   REALTIME 50ms: WHEN temp > 4 THEN compressor ON;
+RULE rest    REALTIME 50ms: WHEN temp < 1 THEN compressor OFF;
+RULE lamp:   WHEN door == 1 THEN light ON;
+RULE dark:   WHEN door == 0 THEN light OFF;
+RULE ajar:   WHEN door == 1 FOR 30s THEN NOTIFY "Door left open";
+RULE thawing: WHEN avg(temp, 1min) > 8 THEN NOTIFY "Cold room warming up";
+
+FAILSAFE compressor ON;

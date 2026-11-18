@@ -1,0 +1,40 @@
+info[I122]: LED matrix display truncated: 11 rules (shows 10)
+  = hint: the first ones in source order are shown
+
+Code thresholds (board unoq, 10-bit ADC)
+  n0   temp > 0    ⇔  code >= 249  (code 249 = 0.16 C)
+  n1   temp > 10   ⇔  code >= 311  (code 311 = 10.16 C)
+  n2   temp > 20   ⇔  code >= 373  (code 373 = 20.16 C)
+  n3   temp > 30   ⇔  code >= 435  (code 435 = 30.16 C)
+  n4   temp > 40   ⇔  code >= 497  (code 497 = 40.16 C)
+  n5   temp > 50   ⇔  code >= 559  (code 559 = 50.16 C)
+  n6   temp > 60   ⇔  code >= 621  (code 621 = 60.16 C)
+  n7   temp > 70   ⇔  code >= 683  (code 683 = 70.16 C)
+  n8   temp > 80   ⇔  code >= 745  (code 745 = 80.16 C)
+  n9   temp > 90   ⇔  code >= 807  (code 807 = 90.16 C)
+  n10  temp > 100  ⇔  code >= 869  (code 869 = 100.16 C)
+
+Placement
+  rule      runs on  reason
+  n0        Linux    NOTIFY leaves the MCU
+  n1        Linux    NOTIFY leaves the MCU
+  n2        Linux    NOTIFY leaves the MCU
+  n3        Linux    NOTIFY leaves the MCU
+  n4        Linux    NOTIFY leaves the MCU
+  n5        Linux    NOTIFY leaves the MCU
+  n6        Linux    NOTIFY leaves the MCU
+  n7        Linux    NOTIFY leaves the MCU
+  n8        Linux    NOTIFY leaves the MCU
+  n9        Linux    NOTIFY leaves the MCU
+  n10       Linux    NOTIFY leaves the MCU
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 10 rule pixels, 0 actuator blocks
+
+examples/errors/I122_matrix_truncated.iot: 0 errors, 0 warnings, 1 note

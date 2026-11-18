@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "file": "examples/errors/E103_cross_variable.iot",
+  "diagnostics": [
+    {
+      "code": "E103",
+      "severity": "error",
+      "message": "conflict: 'cool' sets fan ON and 'dry' sets it OFF when temp ∈ (35, 125] C and humidity ∈ (80, 100] PCT",
+      "line": 5,
+      "col": 6,
+      "end_line": 5,
+      "end_col": 9,
+      "hint": "OFF wins at runtime; make the two conditions disjoint",
+      "related": [
+        {
+          "line": 4,
+          "col": 6,
+          "end_line": 4,
+          "end_col": 10,
+          "message": "'cool' sets fan ON"
+        },
+        {
+          "line": 5,
+          "col": 6,
+          "end_line": 5,
+          "end_col": 9,
+          "message": "'dry' sets fan OFF"
+        }
+      ],
+      "data": {
+        "overlap": "temp ∈ (35, 125] C and humidity ∈ (80, 100] PCT"
+      }
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "cool",
+        "condition": "temp > 35",
+        "code": "code >= 466  (code 466 = 35.16 C)"
+      },
+      {
+        "where": "dry",
+        "condition": "humidity > 80",
+        "code": "code >= 819  (code 819 = 80.06 PCT)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "cool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "dry",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      }
+    ],
+    "safety": [],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 2,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 239,
+      "bridge_percent": 2.1,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "2 sensor bars, 2 rule pixels, 1 actuator blocks"
+    }
+  }
+}

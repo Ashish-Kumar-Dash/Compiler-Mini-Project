@@ -1,0 +1,27 @@
+warning[W103]: possible conflict (through a window): 'warm' sets heater ON and 'hot' sets it OFF when avg(temp, 10s) ∈ [-40, 18) C and temp ∈ (40, 125] C
+  --> examples/errors/W103_window_conflict.iot:4:6
+   |
+ 4 | RULE hot: WHEN temp > 40 THEN heater OFF;
+   |      ^^^ OFF wins at runtime; make the two conditions disjoint
+   = note: 'warm' sets heater ON (examples/errors/W103_window_conflict.iot:3:6)
+   = note: 'hot' sets heater OFF (examples/errors/W103_window_conflict.iot:4:6)
+
+Code thresholds (board unoq, 10-bit ADC)
+  warm  avg(temp, 10s) < 18  ⇔  5·sum < 1798·count  (average code < 359.6)
+  hot   temp > 40            ⇔  code >= 497  (code 497 = 40.16 C)
+
+Placement
+  rule      runs on  reason
+  warm      Linux    avg(temp, 10s): window history kept on Linux
+  hot       MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             temp over 10s: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    1 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 2 rule pixels, 1 actuator blocks
+
+examples/errors/W103_window_conflict.iot: 0 errors, 1 warning, 0 notes

@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "file": "examples/cold_room.iot",
+  "diagnostics": [
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 3 C (61 ADC codes) between 'chill' (compressor ON) and 'rest' (compressor OFF)",
+      "line": 8,
+      "col": 6,
+      "end_line": 8,
+      "end_col": 10,
+      "hint": null,
+      "related": [
+        {
+          "line": 7,
+          "col": 6,
+          "end_line": 7,
+          "end_col": 11,
+          "message": "'chill' sets compressor ON"
+        },
+        {
+          "line": 8,
+          "col": 6,
+          "end_line": 8,
+          "end_col": 10,
+          "message": "'rest' sets compressor OFF"
+        }
+      ],
+      "data": {
+        "gap": "3",
+        "codes": 61
+      }
+    },
+    {
+      "code": "W111",
+      "severity": "warning",
+      "message": "REALTIME rule 'rest' (compressor OFF) can be overridden by FAILSAFE",
+      "line": 8,
+      "col": 6,
+      "end_line": 8,
+      "end_col": 10,
+      "hint": "its deadline covers evaluation, not the outcome",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "W119",
+      "severity": "warning",
+      "message": "FAILSAFE compressor ON overrides MCU rule 'rest' while Linux is down",
+      "line": 8,
+      "col": 6,
+      "end_line": 8,
+      "end_col": 10,
+      "hint": "'rest' cannot set compressor OFF without the Linux heartbeat",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "chill",
+        "condition": "temp > 4",
+        "code": "code >= 696  (code 696 = 4.02 C)"
+      },
+      {
+        "where": "rest",
+        "condition": "temp < 1",
+        "code": "code <= 634  (code 634 = 0.99 C)"
+      },
+      {
+        "where": "lamp",
+        "condition": "door == 1",
+        "code": "code >= 1"
+      },
+      {
+        "where": "dark",
+        "condition": "door == 0",
+        "code": "code <= 0"
+      },
+      {
+        "where": "ajar",
+        "condition": "door == 1",
+        "code": "code >= 1"
+      },
+      {
+        "where": "thawing",
+        "condition": "avg(temp, 1min) > 8",
+        "code": "25·sum > 19437·count  (average code > 777.48)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "chill",
+        "runs_on": "MCU",
+        "reason": "REALTIME 50ms"
+      },
+      {
+        "rule": "rest",
+        "runs_on": "MCU",
+        "reason": "REALTIME 50ms"
+      },
+      {
+        "rule": "lamp",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "dark",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "ajar",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "thawing",
+        "runs_on": "Linux",
+        "reason": "NOTIFY leaves the MCU"
+      },
+      {
+        "rule": "FAILSAFE",
+        "runs_on": "MCU",
+        "reason": "applied by the MCU when Linux heartbeats stop"
+      }
+    ],
+    "safety": [
+      {
+        "status": "proven",
+        "property": "FAILSAFE compressor ON",
+        "detail": [
+          "initial state; applied after 2000 ms without a fresh heartbeat"
+        ]
+      }
+    ],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 2,
+      "windows": [
+        "temp over 1min: 32 buckets on Linux"
+      ],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 239,
+      "bridge_percent": 2.1,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "2 sensor bars, 6 rule pixels, 2 actuator blocks"
+    }
+  }
+}

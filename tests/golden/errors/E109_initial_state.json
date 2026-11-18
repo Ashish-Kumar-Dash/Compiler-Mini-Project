@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "file": "examples/errors/E109_initial_state.iot",
+  "diagnostics": [
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'p1' (pump ON) and 'p0' (pump OFF)",
+      "line": 5,
+      "col": 6,
+      "end_line": 5,
+      "end_col": 8,
+      "hint": null,
+      "related": [
+        {
+          "line": 4,
+          "col": 6,
+          "end_line": 4,
+          "end_col": 8,
+          "message": "'p1' sets pump ON"
+        },
+        {
+          "line": 5,
+          "col": 6,
+          "end_line": 5,
+          "end_col": 8,
+          "message": "'p0' sets pump OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'v1' (valve ON) and 'v0' (valve OFF)",
+      "line": 7,
+      "col": 6,
+      "end_line": 7,
+      "end_col": 8,
+      "hint": null,
+      "related": [
+        {
+          "line": 6,
+          "col": 6,
+          "end_line": 6,
+          "end_col": 8,
+          "message": "'v1' sets valve ON"
+        },
+        {
+          "line": 7,
+          "col": 6,
+          "end_line": 7,
+          "end_col": 8,
+          "message": "'v0' sets valve OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "E109",
+      "severity": "error",
+      "message": "the initial state violates NEVER pump OFF AND valve OFF: pump starts OFF and valve starts OFF",
+      "line": 8,
+      "col": 1,
+      "end_line": 8,
+      "end_col": 37,
+      "hint": "add FAILSAFE valve ON",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "p1",
+        "condition": "temp > 35",
+        "code": "code >= 466  (code 466 = 35.16 C)"
+      },
+      {
+        "where": "p0",
+        "condition": "temp < 30",
+        "code": "code <= 433  (code 433 = 29.84 C)"
+      },
+      {
+        "where": "v1",
+        "condition": "temp < 10",
+        "code": "code <= 309  (code 309 = 9.84 C)"
+      },
+      {
+        "where": "v0",
+        "condition": "temp > 15",
+        "code": "code >= 342  (code 342 = 15.16 C)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "p1",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "p0",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "v1",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "v0",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "SAFETY",
+        "runs_on": "MCU",
+        "reason": "MCU owns the pins and can veto any write"
+      }
+    ],
+    "safety": [
+      {
+        "status": "enforced",
+        "property": "NEVER pump OFF AND valve OFF",
+        "detail": [
+          "not proven (pairs with an OFF side are checked at runtime only)",
+          "→ enforced by the MCU monitor (incumbent wins)"
+        ]
+      }
+    ],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 1,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 209,
+      "bridge_percent": 1.8,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "1 sensor bars, 4 rule pixels, 2 actuator blocks"
+    }
+  }
+}

@@ -13,8 +13,75 @@
       "hint": "D0/D1 carry Serial1 and the Zephyr console on the UNO Q; prefer D2-D13",
       "related": [],
       "data": {}
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)",
+      "line": 4,
+      "col": 6,
+      "end_line": 4,
+      "end_col": 12,
+      "hint": null,
+      "related": [
+        {
+          "line": 3,
+          "col": 6,
+          "end_line": 3,
+          "end_col": 10,
+          "message": "'cool' sets fan ON"
+        },
+        {
+          "line": 4,
+          "col": 6,
+          "end_line": 4,
+          "end_col": 12,
+          "message": "'uncool' sets fan OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
     }
   ],
   "suppressed_errors": 0,
-  "reports": {}
+  "reports": {
+    "thresholds": [
+      {
+        "where": "cool",
+        "condition": "temp > 35",
+        "code": "code >= 466  (code 466 = 35.16 C)"
+      },
+      {
+        "where": "uncool",
+        "condition": "temp < 30",
+        "code": "code <= 433  (code 433 = 29.84 C)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "cool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "uncool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      }
+    ],
+    "safety": [],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 1,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 209,
+      "bridge_percent": 1.8,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "1 sensor bars, 2 rule pixels, 1 actuator blocks"
+    }
+  }
 }

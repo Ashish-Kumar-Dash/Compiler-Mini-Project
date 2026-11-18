@@ -1,0 +1,35 @@
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W117_never_on.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W117_never_on.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W117_never_on.iot:4:6)
+
+warning[W117]: actuator 'pump' can never turn ON (it starts OFF and is only ever set OFF)
+  --> examples/errors/W117_never_on.iot:5:10
+   |
+ 5 | ACTUATOR pump AT D9;
+   |          ^^^^ add a rule that sets pump ON
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool    temp > 35  ⇔  code >= 466  (code 466 = 35.16 C)
+  uncool  temp < 30  ⇔  code <= 433  (code 433 = 29.84 C)
+  drain   temp > 50  ⇔  code >= 559  (code 559 = 50.16 C)
+
+Placement
+  rule      runs on  reason
+  cool      MCU      default: no Bridge hop
+  uncool    MCU      default: no Bridge hop
+  drain     MCU      default: no Bridge hop
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 3 rule pixels, 2 actuator blocks
+
+examples/errors/W117_never_on.iot: 0 errors, 1 warning, 1 note

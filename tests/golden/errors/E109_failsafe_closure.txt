@@ -1,0 +1,47 @@
+info[I105]: hysteresis gap of 10 C between 'v1' (vent ON) and 'v0' (vent OFF)
+  --> examples/errors/E109_failsafe_closure.iot:7:6
+   |
+ 7 | RULE v0: WHEN avg(temp, 10s) < 50 THEN vent OFF;
+   |      ^^
+   = note: 'v1' sets vent ON (examples/errors/E109_failsafe_closure.iot:6:6)
+   = note: 'v0' sets vent OFF (examples/errors/E109_failsafe_closure.iot:7:6)
+
+error[E109]: the FAILSAFE states force vent both ON and OFF through NEVER pairs
+   --> examples/errors/E109_failsafe_closure.iot:11:1
+    |
+ 11 | FAILSAFE heater ON;
+    | ^^^^^^^^^^^^^^^^^^^ change one of the FAILSAFE states
+
+Code thresholds (board unoq, 10-bit ADC)
+  h0  avg(temp, 10s) > 30  ⇔  1·sum > 434·count  (average code > 434)
+  v1  avg(temp, 10s) > 60  ⇔  1·sum > 620·count  (average code > 620)
+  v0  avg(temp, 10s) < 50  ⇔  1·sum < 558·count  (average code < 558)
+  p0  avg(temp, 10s) > 90  ⇔  1·sum > 806·count  (average code > 806)
+
+Placement
+  rule      runs on  reason
+  h0        Linux    avg(temp, 10s): window history kept on Linux
+  v1        Linux    avg(temp, 10s): window history kept on Linux
+  v0        Linux    avg(temp, 10s): window history kept on Linux
+  p0        Linux    avg(temp, 10s): window history kept on Linux
+  SAFETY    MCU      MCU owns the pins and can veto any write
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ⚠ NEVER heater ON AND vent OFF  not proven (pairs with an OFF side are checked at runtime only)
+                                  → enforced by the MCU monitor (incumbent wins)
+  ⚠ NEVER vent ON AND pump ON     not proven: v1 (vent ON on avg(temp, 10s) > 60) is not covered by a pump OFF rule
+                                  → enforced by the MCU monitor (incumbent wins)
+  ✓ FAILSAFE heater ON            initial state; applied after 2000 ms without a fresh heartbeat
+  ✓ FAILSAFE pump ON              initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             temp over 10s: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    4 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 4 rule pixels, 3 actuator blocks
+
+examples/errors/E109_failsafe_closure.iot: 1 error, 0 warnings, 1 note

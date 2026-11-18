@@ -1,0 +1,4 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR heater AT D8;
+RULE warm: WHEN avg(temp, 10s) < 18 THEN heater ON;
+RULE hot: WHEN temp > 40 THEN heater OFF;

@@ -1,0 +1,50 @@
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'p1' (pump ON) and 'p0' (pump OFF)
+  --> examples/errors/E109_initial_state.iot:5:6
+   |
+ 5 | RULE p0: WHEN temp < 30 THEN pump OFF;
+   |      ^^
+   = note: 'p1' sets pump ON (examples/errors/E109_initial_state.iot:4:6)
+   = note: 'p0' sets pump OFF (examples/errors/E109_initial_state.iot:5:6)
+
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'v1' (valve ON) and 'v0' (valve OFF)
+  --> examples/errors/E109_initial_state.iot:7:6
+   |
+ 7 | RULE v0: WHEN temp > 15 THEN valve OFF;
+   |      ^^
+   = note: 'v1' sets valve ON (examples/errors/E109_initial_state.iot:6:6)
+   = note: 'v0' sets valve OFF (examples/errors/E109_initial_state.iot:7:6)
+
+error[E109]: the initial state violates NEVER pump OFF AND valve OFF: pump starts OFF and valve starts OFF
+  --> examples/errors/E109_initial_state.iot:8:1
+   |
+ 8 | SAFETY NEVER pump OFF AND valve OFF;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ add FAILSAFE valve ON
+
+Code thresholds (board unoq, 10-bit ADC)
+  p1  temp > 35  ⇔  code >= 466  (code 466 = 35.16 C)
+  p0  temp < 30  ⇔  code <= 433  (code 433 = 29.84 C)
+  v1  temp < 10  ⇔  code <= 309  (code 309 = 9.84 C)
+  v0  temp > 15  ⇔  code >= 342  (code 342 = 15.16 C)
+
+Placement
+  rule      runs on  reason
+  p1        MCU      default: no Bridge hop
+  p0        MCU      default: no Bridge hop
+  v1        MCU      default: no Bridge hop
+  v0        MCU      default: no Bridge hop
+  SAFETY    MCU      MCU owns the pins and can veto any write
+
+Safety
+  ⚠ NEVER pump OFF AND valve OFF  not proven (pairs with an OFF side are checked at runtime only)
+                                  → enforced by the MCU monitor (incumbent wins)
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 4 rule pixels, 2 actuator blocks
+
+examples/errors/E109_initial_state.iot: 1 error, 0 warnings, 2 notes

@@ -1,0 +1,268 @@
+{
+  "version": 1,
+  "file": "examples/ensure_chain.iot",
+  "diagnostics": [
+    {
+      "code": "W119",
+      "severity": "warning",
+      "message": "FAILSAFE fan OFF overrides MCU rule 'cool' while Linux is down",
+      "line": 8,
+      "col": 6,
+      "end_line": 8,
+      "end_col": 10,
+      "hint": "'cool' cannot set fan ON without the Linux heartbeat",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)",
+      "line": 9,
+      "col": 6,
+      "end_line": 9,
+      "end_col": 12,
+      "hint": null,
+      "related": [
+        {
+          "line": 8,
+          "col": 6,
+          "end_line": 8,
+          "end_col": 10,
+          "message": "'cool' sets fan ON"
+        },
+        {
+          "line": 9,
+          "col": 6,
+          "end_line": 9,
+          "end_col": 12,
+          "message": "'uncool' sets fan OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'warm' (heater ON) and 'unwarm' (heater OFF)",
+      "line": 11,
+      "col": 6,
+      "end_line": 11,
+      "end_col": 12,
+      "hint": null,
+      "related": [
+        {
+          "line": 10,
+          "col": 6,
+          "end_line": 10,
+          "end_col": 10,
+          "message": "'warm' sets heater ON"
+        },
+        {
+          "line": 11,
+          "col": 6,
+          "end_line": 11,
+          "end_col": 12,
+          "message": "'unwarm' sets heater OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "W119",
+      "severity": "warning",
+      "message": "FAILSAFE heater ON overrides MCU rule 'unwarm' while Linux is down",
+      "line": 11,
+      "col": 6,
+      "end_line": 11,
+      "end_col": 12,
+      "hint": "'unwarm' cannot set heater OFF without the Linux heartbeat",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "I105",
+      "severity": "info",
+      "message": "hysteresis gap of 5 C (32 ADC codes) between 'air' (vent ON) and 'still' (vent OFF)",
+      "line": 13,
+      "col": 6,
+      "end_line": 13,
+      "end_col": 11,
+      "hint": null,
+      "related": [
+        {
+          "line": 12,
+          "col": 6,
+          "end_line": 12,
+          "end_col": 9,
+          "message": "'air' sets vent ON"
+        },
+        {
+          "line": 13,
+          "col": 6,
+          "end_line": 13,
+          "end_col": 11,
+          "message": "'still' sets vent OFF"
+        }
+      ],
+      "data": {
+        "gap": "5",
+        "codes": 32
+      }
+    },
+    {
+      "code": "W107",
+      "severity": "warning",
+      "message": "ENSURE fan ON also forces heater OFF, vent ON (through NEVER pairs)",
+      "line": 17,
+      "col": 1,
+      "end_line": 17,
+      "end_col": 37,
+      "hint": "forced partners override their rules while the condition holds",
+      "related": [],
+      "data": {}
+    },
+    {
+      "code": "W110",
+      "severity": "warning",
+      "message": "ENSURE fan ON contradicts the FAILSAFE states: it forces fan ON (FAILSAFE: OFF), heater OFF (FAILSAFE: ON)",
+      "line": 17,
+      "col": 1,
+      "end_line": 17,
+      "end_col": 37,
+      "hint": "ENSURE wins while its condition holds, also when Linux is down",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "cool",
+        "condition": "temp > 35",
+        "code": "code >= 466  (code 466 = 35.16 C)"
+      },
+      {
+        "where": "uncool",
+        "condition": "temp < 30",
+        "code": "code <= 433  (code 433 = 29.84 C)"
+      },
+      {
+        "where": "warm",
+        "condition": "temp < 10",
+        "code": "code <= 309  (code 309 = 9.84 C)"
+      },
+      {
+        "where": "unwarm",
+        "condition": "temp > 15",
+        "code": "code >= 342  (code 342 = 15.16 C)"
+      },
+      {
+        "where": "air",
+        "condition": "temp > 25",
+        "code": "code >= 404  (code 404 = 25.16 C)"
+      },
+      {
+        "where": "still",
+        "condition": "temp < 20",
+        "code": "code <= 371  (code 371 = 19.84 C)"
+      },
+      {
+        "where": "ENSURE#1",
+        "condition": "temp > 50",
+        "code": "code >= 559  (code 559 = 50.16 C)"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "cool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "uncool",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "warm",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "unwarm",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "air",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "still",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "SAFETY",
+        "runs_on": "MCU",
+        "reason": "MCU owns the pins and can veto any write"
+      },
+      {
+        "rule": "FAILSAFE",
+        "runs_on": "MCU",
+        "reason": "applied by the MCU when Linux heartbeats stop"
+      }
+    ],
+    "safety": [
+      {
+        "status": "proven",
+        "property": "NEVER fan ON AND heater ON",
+        "detail": [
+          "proven: every ON request is covered by an OFF request of the partner (OFF wins); the monitor still checks it"
+        ]
+      },
+      {
+        "status": "enforced",
+        "property": "NEVER heater OFF AND vent OFF",
+        "detail": [
+          "not proven (pairs with an OFF side are checked at runtime only)",
+          "→ enforced by the MCU monitor (incumbent wins)"
+        ]
+      },
+      {
+        "status": "proven",
+        "property": "ENSURE fan ON WHEN temp > 50",
+        "detail": [
+          "enforced by the MCU monitor every pass; closure: fan ON, heater OFF, vent ON (W107)"
+        ]
+      },
+      {
+        "status": "proven",
+        "property": "FAILSAFE heater ON",
+        "detail": [
+          "initial state; applied after 2000 ms without a fresh heartbeat"
+        ]
+      }
+    ],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 1,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 209,
+      "bridge_percent": 1.8,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "1 sensor bars, 6 rule pixels, 3 actuator blocks"
+    }
+  }
+}

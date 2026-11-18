@@ -1,0 +1,9 @@
+// Mixed units: thresholds in F against a C sensor are converted exactly at compile time.
+SENSOR   water AT A0 ANALOG UNIT C RANGE 0..100;
+ACTUATOR boiler AT D7;
+
+RULE heat: WHEN water < 104 F THEN boiler ON;       // 40 C
+RULE stop: WHEN water > 140 F THEN boiler OFF;      // 60 C
+RULE scald: WHEN water > 158 F FOR 5s THEN NOTIFY "Scald risk";
+
+SAFETY ENSURE boiler OFF WHEN water > 85;

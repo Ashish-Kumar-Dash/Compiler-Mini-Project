@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "file": "examples/door_alarm.iot",
+  "diagnostics": [
+    {
+      "code": "W119",
+      "severity": "warning",
+      "message": "FAILSAFE siren OFF overrides MCU rule 'intruder' while Linux is down",
+      "line": 7,
+      "col": 6,
+      "end_line": 7,
+      "end_col": 14,
+      "hint": "'intruder' cannot set siren ON without the Linux heartbeat",
+      "related": [],
+      "data": {}
+    }
+  ],
+  "suppressed_errors": 0,
+  "reports": {
+    "thresholds": [
+      {
+        "where": "intruder",
+        "condition": "door == 1",
+        "code": "code >= 1"
+      },
+      {
+        "where": "intruder",
+        "condition": "armed == 1",
+        "code": "code >= 1"
+      },
+      {
+        "where": "quiet",
+        "condition": "armed == 0",
+        "code": "code <= 0"
+      },
+      {
+        "where": "ok_on",
+        "condition": "armed == 0",
+        "code": "code <= 0"
+      },
+      {
+        "where": "ok_off",
+        "condition": "armed == 1",
+        "code": "code >= 1"
+      }
+    ],
+    "placement": [
+      {
+        "rule": "intruder",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "quiet",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "ok_on",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "ok_off",
+        "runs_on": "MCU",
+        "reason": "default: no Bridge hop"
+      },
+      {
+        "rule": "SAFETY",
+        "runs_on": "MCU",
+        "reason": "MCU owns the pins and can veto any write"
+      },
+      {
+        "rule": "FAILSAFE",
+        "runs_on": "MCU",
+        "reason": "applied by the MCU when Linux heartbeats stop"
+      }
+    ],
+    "safety": [
+      {
+        "status": "proven",
+        "property": "NEVER siren ON AND green ON",
+        "detail": [
+          "proven: every ON request is covered by an OFF request of the partner (OFF wins); the monitor still checks it"
+        ]
+      },
+      {
+        "status": "proven",
+        "property": "FAILSAFE siren OFF",
+        "detail": [
+          "initial state; applied after 2000 ms without a fresh heartbeat"
+        ]
+      }
+    ],
+    "resources": {
+      "sample_ms": 100,
+      "sensors": 2,
+      "windows": [],
+      "mcu_window_bytes": 0,
+      "linux_mask_bits": 0,
+      "bridge_bytes_per_s": 239,
+      "bridge_percent": 2.1,
+      "linux_to_mcu_max_bytes": 28,
+      "matrix": "2 sensor bars, 4 rule pixels, 2 actuator blocks"
+    }
+  }
+}

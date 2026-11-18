@@ -1,0 +1,33 @@
+warning[W103]: possible conflict (through a window): 'dusk' sets lamp ON and 'dawn' sets it OFF when max(light, 30s) ∈ [0, 80) LUX and min(light, 30s) ∈ (150, 1000] LUX
+  --> examples/light_sensor.iot:8:6
+   |
+ 8 | RULE dawn:   WHEN min(light, 30s) > 150 THEN lamp OFF;
+   |      ^^^^ OFF wins at runtime; make the two conditions disjoint
+   = note: 'dusk' sets lamp ON (examples/light_sensor.iot:7:6)
+   = note: 'dawn' sets lamp OFF (examples/light_sensor.iot:8:6)
+
+Code thresholds (board unoq, 10-bit ADC)
+  dusk    max(light, 30s) < 80   ⇔  max code <= 81  (code 81 = 79.18 LUX)
+  dawn    min(light, 30s) > 150  ⇔  min code >= 154  (code 154 = 150.54 LUX)
+  broken  light > 900            ⇔  code >= 921  (code 921 = 900.29 LUX)
+
+Placement
+  rule      runs on  reason
+  dusk      Linux    max(light, 30s): window history kept on Linux
+  dawn      Linux    min(light, 30s): window history kept on Linux
+  broken    Linux    NOTIFY leaves the MCU
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ✓ FAILSAFE lamp ON  initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             light over 30s: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    2 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 3 rule pixels, 1 actuator blocks
+
+examples/light_sensor.iot: 0 errors, 1 warning, 0 notes

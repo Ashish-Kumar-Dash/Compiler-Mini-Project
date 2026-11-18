@@ -1,0 +1,8 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR pump AT D7;
+ACTUATOR valve AT D8;
+RULE p1: WHEN temp > 35 THEN pump ON;
+RULE p0: WHEN temp < 30 THEN pump OFF;
+RULE v1: WHEN temp < 10 THEN valve ON;
+RULE v0: WHEN temp > 15 THEN valve OFF;
+SAFETY NEVER pump OFF AND valve OFF;

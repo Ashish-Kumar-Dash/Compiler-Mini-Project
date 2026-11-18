@@ -1,0 +1,11 @@
+// Street lamp with an LDR in lux: max/min windows ignore passing shadows.
+// Expect W103: windows are analysed as independent variables (ADR-13), so max < 80 and
+// min > 150 look compatible to the compiler although they cannot hold together.
+SENSOR   light AT A2 ANALOG UNIT LUX RANGE 0..1000;
+ACTUATOR lamp  AT D9;
+
+RULE dusk:   WHEN max(light, 30s) < 80 THEN lamp ON;
+RULE dawn:   WHEN min(light, 30s) > 150 THEN lamp OFF;
+RULE broken: WHEN light > 900 FOR 1min THEN NOTIFY "Sensor saturated";
+
+FAILSAFE lamp ON;

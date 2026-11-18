@@ -1,0 +1,36 @@
+warning[W119]: FAILSAFE siren OFF overrides MCU rule 'intruder' while Linux is down
+  --> examples/door_alarm.iot:7:6
+   |
+ 7 | RULE intruder: WHEN door == 1 AND armed == 1 FOR 2s THEN siren ON;
+   |      ^^^^^^^^ 'intruder' cannot set siren ON without the Linux heartbeat
+
+Code thresholds (board unoq, 10-bit ADC)
+  intruder  door == 1   ⇔  code >= 1
+  intruder  armed == 1  ⇔  code >= 1
+  quiet     armed == 0  ⇔  code <= 0
+  ok_on     armed == 0  ⇔  code <= 0
+  ok_off    armed == 1  ⇔  code >= 1
+
+Placement
+  rule      runs on  reason
+  intruder  MCU      default: no Bridge hop
+  quiet     MCU      default: no Bridge hop
+  ok_on     MCU      default: no Bridge hop
+  ok_off    MCU      default: no Bridge hop
+  SAFETY    MCU      MCU owns the pins and can veto any write
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ✓ NEVER siren ON AND green ON  proven: every ON request is covered by an OFF request of the partner (OFF wins); the monitor still checks it
+  ✓ FAILSAFE siren OFF           initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 2 sensors
+  window             none
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~239 B/s (2.1% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         2 sensor bars, 4 rule pixels, 2 actuator blocks
+
+examples/door_alarm.iot: 0 errors, 1 warning, 0 notes

@@ -1,0 +1,13 @@
+// Door alarm: a DIGITAL sensor, an alarm that latches for 2 s, and a NEVER that is proven.
+SENSOR   door  AT D2 DIGITAL;
+SENSOR   armed AT D3 DIGITAL;
+ACTUATOR siren AT D7;
+ACTUATOR green AT D8;
+
+RULE intruder: WHEN door == 1 AND armed == 1 FOR 2s THEN siren ON;
+RULE quiet:    WHEN armed == 0 THEN siren OFF;
+RULE ok_on:    WHEN armed == 0 THEN green ON;
+RULE ok_off:   WHEN armed == 1 THEN green OFF;
+
+SAFETY NEVER siren ON AND green ON;
+FAILSAFE siren OFF;

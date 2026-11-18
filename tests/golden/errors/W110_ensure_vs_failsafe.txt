@@ -1,0 +1,49 @@
+info[I105]: hysteresis gap of 5 C between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W110_ensure_vs_failsafe.iot:6:6
+   |
+ 6 | RULE uncool: WHEN avg(temp, 10s) < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W110_ensure_vs_failsafe.iot:5:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W110_ensure_vs_failsafe.iot:6:6)
+
+warning[W107]: ENSURE fan ON also forces heater OFF (through NEVER pairs)
+  --> examples/errors/W110_ensure_vs_failsafe.iot:9:1
+   |
+ 9 | SAFETY ENSURE fan ON WHEN temp > 50;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ forced partners override their rules while the condition holds
+
+warning[W110]: ENSURE fan ON contradicts the FAILSAFE states: it forces fan ON (FAILSAFE: OFF), heater OFF (FAILSAFE: ON)
+  --> examples/errors/W110_ensure_vs_failsafe.iot:9:1
+   |
+ 9 | SAFETY ENSURE fan ON WHEN temp > 50;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ENSURE wins while its condition holds, also when Linux is down
+
+Code thresholds (board unoq, 10-bit ADC)
+  cool      avg(temp, 10s) > 35  ⇔  1·sum > 465·count  (average code > 465)
+  uncool    avg(temp, 10s) < 30  ⇔  1·sum < 434·count  (average code < 434)
+  unwarm    avg(temp, 10s) > 15  ⇔  1·sum > 341·count  (average code > 341)
+  ENSURE#1  temp > 50            ⇔  code >= 559  (code 559 = 50.16 C)
+
+Placement
+  rule      runs on  reason
+  cool      Linux    avg(temp, 10s): window history kept on Linux
+  uncool    Linux    avg(temp, 10s): window history kept on Linux
+  unwarm    Linux    avg(temp, 10s): window history kept on Linux
+  SAFETY    MCU      MCU owns the pins and can veto any write
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ✓ NEVER heater ON AND fan ON    proven: every ON request is covered by an OFF request of the partner (OFF wins); the monitor still checks it
+  ✓ ENSURE fan ON WHEN temp > 50  enforced by the MCU monitor every pass; closure: fan ON, heater OFF (W107)
+  ✓ FAILSAFE heater ON            initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 1 sensor
+  window             temp over 10s: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    3 of 32
+  Bridge MCU->Linux  ~209 B/s (1.8% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         1 sensor bars, 3 rule pixels, 2 actuator blocks
+
+examples/errors/W110_ensure_vs_failsafe.iot: 0 errors, 2 warnings, 1 note

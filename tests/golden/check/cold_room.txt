@@ -1,0 +1,51 @@
+info[I105]: hysteresis gap of 3 C (61 ADC codes) between 'chill' (compressor ON) and 'rest' (compressor OFF)
+  --> examples/cold_room.iot:8:6
+   |
+ 8 | RULE rest    REALTIME 50ms: WHEN temp < 1 THEN compressor OFF;
+   |      ^^^^
+   = note: 'chill' sets compressor ON (examples/cold_room.iot:7:6)
+   = note: 'rest' sets compressor OFF (examples/cold_room.iot:8:6)
+
+warning[W111]: REALTIME rule 'rest' (compressor OFF) can be overridden by FAILSAFE
+  --> examples/cold_room.iot:8:6
+   |
+ 8 | RULE rest    REALTIME 50ms: WHEN temp < 1 THEN compressor OFF;
+   |      ^^^^ its deadline covers evaluation, not the outcome
+
+warning[W119]: FAILSAFE compressor ON overrides MCU rule 'rest' while Linux is down
+  --> examples/cold_room.iot:8:6
+   |
+ 8 | RULE rest    REALTIME 50ms: WHEN temp < 1 THEN compressor OFF;
+   |      ^^^^ 'rest' cannot set compressor OFF without the Linux heartbeat
+
+Code thresholds (board unoq, 10-bit ADC)
+  chill    temp > 4             ⇔  code >= 696  (code 696 = 4.02 C)
+  rest     temp < 1             ⇔  code <= 634  (code 634 = 0.99 C)
+  lamp     door == 1            ⇔  code >= 1
+  dark     door == 0            ⇔  code <= 0
+  ajar     door == 1            ⇔  code >= 1
+  thawing  avg(temp, 1min) > 8  ⇔  25·sum > 19437·count  (average code > 777.48)
+
+Placement
+  rule      runs on  reason
+  chill     MCU      REALTIME 50ms
+  rest      MCU      REALTIME 50ms
+  lamp      MCU      default: no Bridge hop
+  dark      MCU      default: no Bridge hop
+  ajar      Linux    NOTIFY leaves the MCU
+  thawing   Linux    NOTIFY leaves the MCU
+  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop
+
+Safety
+  ✓ FAILSAFE compressor ON  initial state; applied after 2000 ms without a fresh heartbeat
+
+Resources (board unoq, target unoq)
+  sample period      100 ms, 2 sensors
+  window             temp over 1min: 32 buckets on Linux
+  MCU window RAM     0 B
+  Linux mask bits    0 of 32
+  Bridge MCU->Linux  ~239 B/s (2.1% of 11520 B/s)
+  Linux->MCU max     28 B per message (limit 256)
+  LED matrix         2 sensor bars, 6 rule pixels, 2 actuator blocks
+
+examples/cold_room.iot: 0 errors, 2 warnings, 1 note

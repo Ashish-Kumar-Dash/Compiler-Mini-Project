@@ -1,0 +1,12 @@
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR heater AT D7;
+ACTUATOR vent AT D8;
+ACTUATOR pump AT D9;
+RULE h0: WHEN avg(temp, 10s) > 30 THEN heater OFF;
+RULE v1: WHEN avg(temp, 10s) > 60 THEN vent ON;
+RULE v0: WHEN avg(temp, 10s) < 50 THEN vent OFF;
+RULE p0: WHEN avg(temp, 10s) > 90 THEN pump OFF;
+SAFETY NEVER heater ON AND vent OFF;
+SAFETY NEVER vent ON AND pump ON;
+FAILSAFE heater ON;
+FAILSAFE pump ON;
