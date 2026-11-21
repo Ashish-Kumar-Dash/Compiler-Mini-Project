@@ -1,0 +1,288 @@
+{
+ "burst_messages_received": 40,
+ "heartbeat_context": {
+  "hb_during_loop": 1,
+  "hb_main_stack": 2422,
+  "hb_other_stack": 0,
+  "hb_total": 2422
+ },
+ "led1": {
+  "errors": [],
+  "import_error": null,
+  "ok": 250
+ },
+ "loop_windows": [
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2149,
+   "hb_other_stack": 0,
+   "hb_total": 2149,
+   "max_us": 2470,
+   "mcu_t_ms": 230010,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 603,
+   "passes": 1802
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2168,
+   "hb_other_stack": 0,
+   "hb_total": 2168,
+   "max_us": 2482,
+   "mcu_t_ms": 232010,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 603,
+   "passes": 1804
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2188,
+   "hb_other_stack": 0,
+   "hb_total": 2188,
+   "max_us": 2470,
+   "mcu_t_ms": 234010,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 599,
+   "passes": 1802
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2207,
+   "hb_other_stack": 0,
+   "hb_total": 2207,
+   "max_us": 2472,
+   "mcu_t_ms": 236010,
+   "mean_us": 1108,
+   "median_us": 1150,
+   "min_us": 601,
+   "passes": 1804
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2227,
+   "hb_other_stack": 0,
+   "hb_total": 2227,
+   "max_us": 2301,
+   "mcu_t_ms": 238010,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 599,
+   "passes": 1803
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2246,
+   "hb_other_stack": 0,
+   "hb_total": 2246,
+   "max_us": 2376,
+   "mcu_t_ms": 240010,
+   "mean_us": 1108,
+   "median_us": 1150,
+   "min_us": 602,
+   "passes": 1804
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2266,
+   "hb_other_stack": 0,
+   "hb_total": 2266,
+   "max_us": 2470,
+   "mcu_t_ms": 242010,
+   "mean_us": 1108,
+   "median_us": 1150,
+   "min_us": 599,
+   "passes": 1804
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2285,
+   "hb_other_stack": 0,
+   "hb_total": 2285,
+   "max_us": 2394,
+   "mcu_t_ms": 244010,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 598,
+   "passes": 1803
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2305,
+   "hb_other_stack": 0,
+   "hb_total": 2305,
+   "max_us": 2370,
+   "mcu_t_ms": 246011,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 600,
+   "passes": 1803
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2324,
+   "hb_other_stack": 0,
+   "hb_total": 2324,
+   "max_us": 2471,
+   "mcu_t_ms": 248011,
+   "mean_us": 1106,
+   "median_us": 1150,
+   "min_us": 600,
+   "passes": 1808
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2344,
+   "hb_other_stack": 0,
+   "hb_total": 2344,
+   "max_us": 2297,
+   "mcu_t_ms": 250011,
+   "mean_us": 1108,
+   "median_us": 1150,
+   "min_us": 606,
+   "passes": 1804
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2363,
+   "hb_other_stack": 0,
+   "hb_total": 2363,
+   "max_us": 2477,
+   "mcu_t_ms": 252011,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 598,
+   "passes": 1803
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2383,
+   "hb_other_stack": 0,
+   "hb_total": 2383,
+   "max_us": 2486,
+   "mcu_t_ms": 254011,
+   "mean_us": 1109,
+   "median_us": 1150,
+   "min_us": 605,
+   "passes": 1802
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2402,
+   "hb_other_stack": 0,
+   "hb_total": 2402,
+   "max_us": 2483,
+   "mcu_t_ms": 256011,
+   "mean_us": 1108,
+   "median_us": 1150,
+   "min_us": 603,
+   "passes": 1804
+  },
+  {
+   "hb_during_loop": 1,
+   "hb_main_stack": 2422,
+   "hb_other_stack": 0,
+   "hb_total": 2422,
+   "max_us": 2298,
+   "mcu_t_ms": 258011,
+   "mean_us": 1107,
+   "median_us": 1150,
+   "min_us": 598,
+   "passes": 1805
+  }
+ ],
+ "mcu": {
+  "adc_faults": 0,
+  "adc_floating_max": 279,
+  "adc_floating_min": 135,
+  "bridge_begin_ok": 1,
+  "burst_2kb_pass_us": 15544,
+  "hb_stack_distance_max": 6488,
+  "hb_stack_distance_min": 272,
+  "last_heartbeat_age_ms": 12,
+  "matrix_draw_avg_us_x10": 46,
+  "matrix_draw_max_us": 12,
+  "micros_resolution_us": 1,
+  "pinmode_keeps_prior_level": 0,
+  "serial_begin_us": 16990,
+  "serial_println_us": 306
+ },
+ "mcu_uptime_at_first_contact_ms": 10104,
+ "probe_version": 1,
+ "python": "3.13.14 (main, Jul 14 2026, 02:14:27) [GCC 14.2.0]",
+ "python_started_monotonic": 311.133934567,
+ "python_uptime_s": 250.2,
+ "rtt_ms": {
+  "max": 101.63,
+  "median": 7.36,
+  "min": 5.7,
+  "n": 2438,
+  "p95": 12.18
+ },
+ "sample_message": {
+  "arity": 17,
+  "code_types": [
+   "int"
+  ],
+  "codes_ok": true,
+  "last_mcu_t": 259597,
+  "t_type": "int"
+ },
+ "types": {
+  "bool <- True": {
+   "ok": true,
+   "received": true,
+   "value": 1
+  },
+  "bool <- int 1": {
+   "ok": false,
+   "received": false
+  },
+  "float <- 1.5": {
+   "ok": true,
+   "received": true,
+   "value": 1500
+  },
+  "float <- int 2": {
+   "ok": true,
+   "received": true,
+   "value": 2000
+  },
+  "u16 <- 70000 (should be rejected)": {
+   "ok": false,
+   "received": true,
+   "value": 4464
+  },
+  "u16 <- int 1023": {
+   "ok": true,
+   "received": true,
+   "value": 1023
+  },
+  "u32 <- int 4e9": {
+   "ok": true,
+   "received": true,
+   "value": 4000000000
+  },
+  "u32 <- small int 5": {
+   "ok": true,
+   "received": true,
+   "value": 5
+  },
+  "u8 <- int 255": {
+   "ok": true,
+   "received": true,
+   "value": 255
+  },
+  "u8 <- int 7": {
+   "ok": true,
+   "received": true,
+   "value": 7
+  }
+ },
+ "versions": {
+  "arduino_app_bricks": "0.12.0",
+  "env_APP_SOCKET": null
+ }
+}

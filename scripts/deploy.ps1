@@ -30,8 +30,8 @@ $appId = Get-AppId $Name
 
 Write-Host "== Deploying $AppDir -> $dest ($appId) via $($script:Via)"
 
-Write-Host "== Running apps before deploy:"
-Invoke-Board "arduino-app-cli app ps" | Out-Host
+Write-Host "== Apps on the board before deploy:"
+Invoke-Board "arduino-app-cli app list" | Out-Host
 
 Write-Host "== Stopping $appId if it is running (resets the MCU)"
 Invoke-Board "arduino-app-cli app stop $appId" | Out-Host
@@ -51,8 +51,13 @@ $rc = $LASTEXITCODE
 $sw.Stop()
 Write-Host ("== app start exit code {0} after {1:N1} s" -f $rc, $sw.Elapsed.TotalSeconds)
 if ($rc -ne 0) {
-    Write-Host "If another App is running, stop it in App Lab (or: arduino-app-cli app ps / app stop user:<name>) and retry."
+    Write-Host "If another App is running, stop it in App Lab (or: arduino-app-cli app list / app stop user:<name>) and retry."
     exit $rc
+}
+
+if ($script:Via -eq "adb") {
+    & adb forward tcp:7000 tcp:7000 | Out-Null
+    Write-Host "== Web page (if the App has one): http://localhost:7000  (tunnelled over USB by adb)"
 }
 
 if (-not $NoFollow) {

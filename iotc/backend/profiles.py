@@ -53,6 +53,10 @@ UNO = Profile(
     slot_bytes=16, min_deadline_ms=1, has_bridge=False, has_matrix=False, active_low_leds=False,
 )
 
+# UNO Q values confirmed in Phase 0 (22 Nov 2026, Architecture §19): pass interval median 1.15 ms /
+# max 2.5 ms (MIN_DEADLINE_MS 5 keeps margin), micros() 1 us, matrix draw() ~5 us, Bridge round
+# trip median 7.4 ms / max 102 ms, LEDs active-low. Jitter J is not measurable board-only (floating
+# A0 reads noise); keep the research default until a pot is wired.
 UNOQ = Profile(
     name="unoq", fqbn="arduino:zephyr:unoq", analog_pins=ANALOG, digital_pins=DIGITAL,
     led_pins=("LED3R", "LED3G", "LED3B", "LED4R", "LED4G", "LED4B"), serial_pins=("D0", "D1"),

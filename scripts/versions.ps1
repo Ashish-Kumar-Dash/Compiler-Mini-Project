@@ -7,7 +7,7 @@ Assert-BoardTools
 $out = Join-Path $PSScriptRoot "..\hardware\phase0\results\versions.txt"
 $cmds = @(
     "arduino-app-cli version",
-    "arduino-app-cli app ps",
+    "arduino-app-cli app list",
     "uname -a",
     "head -3 /etc/os-release",
     "systemctl is-active arduino-router",
@@ -17,7 +17,9 @@ $cmds = @(
     "find / -xdev -name library.properties -path *RouterBridge* 2>/dev/null -exec grep -H ^version= {} + | head -5",
     "find / -xdev -name library.properties -path *RPClite* 2>/dev/null -exec grep -H ^version= {} + | head -5",
     "find / -xdev -name library.properties -path *LED_Matrix* 2>/dev/null -exec grep -H ^version= {} + | head -5",
-    "hostname; hostname -I"
+    "hostname; hostname -I",
+    "ip -brief addr",
+    "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device 2>/dev/null"
 )
 $lines = @("# iotc board versions, $(Get-Date -Format s), via $($script:Via)")
 foreach ($c in $cmds) {

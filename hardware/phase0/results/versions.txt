@@ -1,0 +1,76 @@
+﻿# iotc board versions, 2026-11-22T02:51:27, via adb
+
+## arduino-app-cli version
+Arduino App CLI version 0.13.0
+daemon version: 0.13.0
+
+## arduino-app-cli app ps
+A CLI tool to manage Arduino Apps, including starting, stopping, logging, and provisioning.
+
+Usage:
+  arduino-app-cli app [command]
+
+Available Commands:
+  clean-cache Delete app cache
+  destroy     Destroy an Arduino App
+  export      Export an existing Arduino App to a zip file
+  import      Import an Arduino App from a zip file
+  list        List the Arduino apps
+  logs        Show the logs of the Python app
+  new         Creates a new Arduino App
+  restart     Restart or Start an Arduino App
+  start       Start an Arduino App
+  stop        Stop an Arduino App
+
+Flags:
+  -h, --help   help for app
+
+Global Flags:
+      --format string      Output format (text, json, json-lines) (default "text")
+      --log-level string   Set the log level (debug, info, warn, error) (default "error")
+
+Use "arduino-app-cli app [command] --help" for more information about a command.
+
+## uname -a
+Linux baigan 6.16.7-g0dd6551ae96b #1 SMP PREEMPT Wed Dec 10 14:36:39 UTC 2025 aarch64 GNU/Linux
+
+## head -3 /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+
+## systemctl is-active arduino-router
+active
+
+## dpkg -l | grep -i arduino
+ii  adbd                                 34.0.5-12arduino7                    arm64        Android Debug Bridge daemon
+ii  android-libbase:arm64                1:34.0.5-12arduino7                  arm64        Android base library
+ii  android-libcutils:arm64              1:34.0.5-12arduino7                  arm64        Android utils library for C
+ii  android-liblog:arm64                 1:34.0.5-12arduino7                  arm64        Android NDK logger interfaces
+ii  arduino-app-cli                      0.13.0                               arm64        Arduino app cli
+ii  arduino-app-lab                      0.10.0                               arm64        Arduino App Lab
+ii  arduino-cli                          1.5.1                                arm64        Arduino CLI
+ii  arduino-router                       0.10.0                               arm64        Arduino application router
+
+## docker images --format {{.Repository}}:{{.Tag}}
+ghcr.io/arduino/app-bricks/python-apps-base:0.12.0
+ghcr.io/arduino/app-bricks/models-downloader:0.12.0
+ghcr.io/arduino/app-bricks/llamacpp-runner:0.12.1
+ghcr.io/arduino/app-bricks/ei-models-runner:0.12.1
+influxdb:2.7-alpine
+
+## find / -xdev -name platform.txt -path *zephyr* 2>/dev/null | head -5
+
+
+## find / -xdev -name library.properties -path *RouterBridge* 2>/dev/null -exec grep -H ^version= {} + | head -5
+
+
+## find / -xdev -name library.properties -path *RPClite* 2>/dev/null -exec grep -H ^version= {} + | head -5
+
+
+## find / -xdev -name library.properties -path *LED_Matrix* 2>/dev/null -exec grep -H ^version= {} + | head -5
+
+
+## hostname; hostname -I
+baigan
+172.17.0.1 172.18.0.1

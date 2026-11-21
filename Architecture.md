@@ -682,7 +682,7 @@ window counts as false. A Linux restart loses `armed` (one duplicate notificatio
 
 ### 9.7 REALTIME
 Deadline `d`: the interval between two successive passes must not exceed `d`. The MCU measures
-with `micros()` (resolution ≈ 31 µs on UNO Q [BOARD]), counts overruns, keeps the maximum pass
+with `micros()` (1 µs resolution, measured), counts overruns, keeps the maximum pass
 interval and reports both in `stats` every second. REALTIME is measured, not enforced. The
 pass floor on UNO Q is ≈ 1 ms (the Bridge loop hook sleeps 1 ms); W121 below the profile's
 `MIN_DEADLINE_MS`.
@@ -847,8 +847,11 @@ globals, `uint64_t` for window comparisons.
 Encodings: `src` < 0xF0 is a rule id; `0xF0 + k` is ENSURE k+1; `0xFF` is FAILSAFE. `result`:
 0 applied, 1 refused, 2 forced, 3 failsafe. `detail`: `0xFF` none, else NEVER index (0-based).
 Linux→MCU messages must be ≤ 256 bytes (dropped by the router otherwise); MCU→Linux messages are
-limited by the 115200-baud link and a 1 KB transmit buffer (P205). MCU handlers have fixed arity;
-Python coerces every argument (`int(x) & 0xFFFFFFFF` etc.).
+limited by the 115200-baud link and a 1 KB transmit buffer (P205); a burst of ~2 KB stalls the
+pass for ~15 ms (measured), so a pass sends at most a handful of notifies. MCU handlers have fixed
+arity and exact types: Python sends `bool` as a real bool (an int `1` is rejected), and range-checks
+every integer before sending, because out-of-range values are silently truncated (u16 70000 →
+4464, measured).
 
 ### 11.6 Linux program shape (`python/main.py`, generated)
 - Imports only `arduino.app_utils` (`App`, `Bridge`, `Leds`), `arduino.app_bricks.web_ui`
@@ -907,7 +910,8 @@ mirrors it):
 ### 11.9 Web dashboard (`webpage.py`)
 Generated `index.html`, `app.js`, `style.css`, `config.json` using only the copied local libraries
 (no CDN). Panels: sensor sliders (`--input sim`) with unit and code; per-sensor gauge with
-threshold ticks; a 60 s Chart.js chart with threshold lines and actuator ON bands; actuator lamps
+threshold ticks; a 60 s chart drawn on a plain canvas (no chart library) with threshold lines
+and actuator ON bands; actuator lamps
 coloured by the last result; placement table with live row highlight (MCU and Linux colours);
 safety panel (✓/⚠, ENSURE, FAILSAFE, link); event log capped at 200 rows, newest first, in
 sentences ("fan ON refused by NEVER#1 (heater is ON)"); link banner (UP / FAILSAFE, heartbeat seq
@@ -929,6 +933,7 @@ breadboard, no components.
 | `heater` | `LED3R` (LED3 red) | MCU, active-low |
 | `fan` | `LED4B` (LED4 blue) | MCU, active-low |
 | `temp`, `humidity` | `A0`, `A1` bound in source; values from web sliders (`--input sim`) | floating pins are never read in sim mode |
+| web page | `http://localhost:7000` on the laptop via `adb forward` over the USB cable | no Wi-Fi needed (`scripts/open_page.ps1`) |
 | status | 8×13 LED matrix | generated renderer |
 | Linux alive | LED1 green | blinked by `main.py` |
 
@@ -1066,8 +1071,9 @@ Options: `--sample-ms` (100), `--heartbeat-ms` (500), `--failsafe-timeout-ms` (2
 - `pinMode(OUTPUT)` starts the pin LOW: active-low LEDs flash for microseconds at boot.
 - Never put 5 V on A0–A5.
 - App Lab can be slow: keep adb/ssh + `arduino-app-cli` as the fallback deployment path.
-- Network: a phone hotspot (WPA2, no captive portal); write down the board IP for when `.local`
-  fails; USB + adb works without any network.
+- Network: the primary path is **USB only**: `adb forward tcp:7000 tcp:7000` and
+  `http://localhost:7000` (Phase 0: the board had no Wi-Fi address). Wi-Fi (`<board>.local:7000`)
+  is optional; addresses 172.17/172.18 from `hostname -I` are Docker-internal.
 - Do not update App Lab, the board image or libraries after Phase 0.
 
 **Compiler correctness**
@@ -1169,29 +1175,29 @@ Research (17 Nov 2026) from Arduino sources: arduino-libraries/Arduino_RouterBri
 Arduino_RPClite, arduino/ArduinoCore-zephyr, arduino/arduino-app-cli, arduino/app-bricks-py,
 arduino/app-bricks-examples, docs.arduino.cc. "Board" = result on our board (Phase 0).
 
-| Item | Research result | Board | Action |
+| Item | Research result | Board (Phase 0, 22 Nov 2026) | Action |
 |---|---|---|---|
-| FQBN | `arduino:zephyr:unoq` (+ `:wait_linux_boot=app` in App Lab) | | §11.1 |
-| Logging object | `Serial` is the RouterBridge Monitor (core ≥ 0.55); writes make blocking RPC calls | | ADR-22 |
-| `pinMode` on analog pins | old cores broke `analogRead`; current core reapplies pinctrl | | never emit it |
-| ADC | 14-bit hardware, default read resolution 10 → 0..1023, 3.3 V | | `A = 1023` |
-| LED names/polarity | `LED3_R/G/B`, `LED4_R/G/B`, active-low | | profile |
-| LED matrix API | `Arduino_LED_Matrix`: `begin`, `setGrayscaleBits(3)`, `draw(uint8_t[104])` | | §11.8 |
-| `Bridge.begin()` | blocks on the router (no timeout), returns bool | | ADR-21, §16 |
-| `provide_safe` context | may run on the bridge thread (RPClite ≥ 0.3.0) and preempt `loop()` | | ADR-23 |
-| Message limits | Linux→MCU ≤ 256 B; MCU→Linux limited by 115200-baud UART + 1 KB TX buffer | | §11.5 |
-| Pass floor | ≈ 1 ms (`__loopHook` sleeps 1 ms) | | `MIN_DEADLINE_MS` |
-| `micros()` resolution | ≈ 31 µs (LPTIM 32.768 kHz) | | §9.7 |
-| Bridge round trip | community: 12–50 ms | | P201 text |
-| App Lab Stop | resets the MCU (Wait-for-App: sketch halted) | | ADR-25 |
-| Python crash | container exits, MCU keeps running, no auto-restart | | §11.6 |
-| Python on board | 3.13 in Docker (`python-apps-base`), no venv without requirements.txt | | §11.6 |
-| WebUI | port 7000; `send_message(type, dict, room=None)`; `on_message(type, cb(sid, data))`; `on_connect`; `expose_api` | | §11.6 |
-| Template | `blink-with-ui`; `sketch.yaml` platform only; one-emoji icon; no `ports:` | | §11.7 |
-| Apps location | `/home/arduino/ArduinoApps/<name>`, App id `user:<name>` | | deploy |
-| Router restart | MCU loses handler registration until reset | | §16 |
-| Versions (CLI, core, RouterBridge, RPClite, router, bricks, Python) | — | | freeze |
-| Jitter `J`, matrix `draw()` cost, TX burst stall, `Serial` without Bridge, LED1 access, container restart policy, deploy time | — | | profile constants |
+| FQBN | `arduino:zephyr:unoq` (+ `:wait_linux_boot=app` in App Lab) | App Lab builds and runs the probe sketch | §11.1 |
+| Logging object | `Serial` is the RouterBridge Monitor; writes make RPC calls | `Serial.begin` blocks **17 ms**, one `println` 0.3 ms | ADR-22 confirmed |
+| `pinMode` before a write | — | a level written before `pinMode(OUTPUT)` is **not** kept | write the inactive level right after `pinMode`; µs glitch documented |
+| ADC | 10-bit default, 3.3 V | floating A0 reads 135–279 (noise) | `--input sim` for the board-only demo |
+| LED names/polarity | `LED3_R/G/B`, `LED4_R/G/B`, active-low | colour cycle correct, active-low confirmed | profile |
+| LED matrix API | `begin`, `setGrayscaleBits(3)`, `draw(uint8_t[104])` | works; `draw()` 4.6 µs avg, 12 µs max | draw on change only (cost negligible) |
+| `Bridge.begin()` | blocks on the router, returns bool | returned true | ADR-21 |
+| `provide_safe` context | may run on the bridge thread | 2422/2422 heartbeats on the main thread; 1 ran during `loop()` | keep the ADR-23 lock (preemption is rare, not absent) |
+| Message types | MCU handlers need exact arity and types | `bool` rejects an int `1`; `u16` silently truncates 70000 → 4464; floats accept ints; 16×u16 `sample` and 4e9 `u32` fine | Python coerces types and range-checks before every notify (§11.5) |
+| Pass interval | ≈ 1 ms floor | median 1.15 ms, min 0.6 ms, max 2.5 ms (≈ 900 passes/s) | `MIN_DEADLINE_MS` = 5 kept |
+| Notify burst | 1 KB TX buffer | 40 notifies (~2 KB) stall one pass **15.5 ms**; none lost | bounded notifies per pass (§9.3 step 12) |
+| `micros()` resolution | ≈ 31 µs (inferred) | **1 µs** | §9.7 |
+| Bridge round trip | community: 12–50 ms | median 7.4 ms, p95 12.2 ms, max 101.6 ms (n = 2438) | P201 text; conformance tolerates rare one-tick lateness |
+| App Lab Stop | resets the MCU | not exercised (by design) | ADR-25 |
+| Python kill / pause | container stops; MCU keeps running | LEDs kept cycling through pause and kill | demo step 10 |
+| LED1 from Python | `Leds.set_led1_color` | works from the container (250 calls) | "Linux alive" blinker |
+| Python on board | 3.13 in Docker | Python 3.13.14, `python-apps-base:0.12.0`, bricks 0.12.0 | §11.6 |
+| WebUI | port 7000 | page **not reachable**: the board had no Wi-Fi/LAN address (`hostname -I` showed only Docker bridges 172.17/172.18) | tunnel over USB: `adb forward tcp:7000 tcp:7000` → `http://localhost:7000` (`scripts/open_page.ps1`) |
+| Template | `blink-with-ui` | pulled; `home-climate` ships no Chart.js | dashboard draws charts on a plain canvas |
+| CLI | `app ps` | arduino-app-cli **0.13.0** has no `app ps`; use `app list` | scripts fixed |
+| Versions | — | arduino-app-cli 0.13.0, App Lab 0.10.0, arduino-cli 1.5.1, arduino-router 0.10.0, Debian 13, kernel 6.16.7, host `baigan` | **frozen until the demo** |
 
 Open questions: none blocking. Revisit ADR-6 (incumbent wins) if the audience finds "cooling
 refused while heating" surprising; the alternative is "REALTIME rules win".

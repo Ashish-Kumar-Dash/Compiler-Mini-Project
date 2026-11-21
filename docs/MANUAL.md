@@ -85,7 +85,7 @@ The first start compiles on the board and takes 1–3 minutes. Note the **"app s
 - [ ] **LED cycle:** LED3 should go red, green, blue, then LED4 red, green, blue, then both off, repeating every 0.6 s per step. Write *inverted* if it's the opposite: mostly lit, with one colour dark.
 - [ ] **Matrix:** a dot moving across the top and a brightness gradient on the bottom row.
 - [ ] **Bridge failure:** if both red LEDs stay on and nothing moves, `Bridge.begin()` failed. Write that down.
-- [ ] **Web page:** open `http://<board-name>.local:7000` in a browser. Does the page with a JSON report open?
+- [ ] **Web page:** run `scripts\open_page.ps1`. It tunnels the board's port 7000 over the USB cable (no Wi-Fi needed) and opens `http://localhost:7000`. Does the page with a JSON report open?
 
 Wait about 40 s, then copy the report to the laptop:
 ```powershell
@@ -99,14 +99,14 @@ Keep the probe running and watch the LEDs throughout.
 scripts\linux_pause.ps1
 scripts\linux_restore.ps1
 scripts\linux_kill.ps1
-adb shell arduino-app-cli app ps
+adb shell arduino-app-cli app list
 scripts\linux_restore.ps1
 scripts\probe_pull.ps1
 ```
 1. **After `linux_pause`:** do the LEDs keep cycling? (yes/no)
 2. **After the first `linux_restore`:** does the web page come back? Roughly how many seconds did it take?
 3. **After `linux_kill`:** do the LEDs keep cycling? (yes/no)
-4. **About 30 s after the kill, before the second restore:** did Python restart by itself? Check the `app ps` output.
+4. **About 30 s after the kill, before the second restore:** did Python restart by itself? Check the `app list` output.
 5. **Before `probe_pull`:** wait about 20 s after the second `linux_restore`, so the new report has fresh data.
 
 ### B5. Serial probe (3 min)
@@ -142,5 +142,5 @@ You can just say "results are in the folder", and I'll read the files myself.
 | `adb` is not recognised | Open a **new** PowerShell window after installing it. |
 | "scripts cannot be loaded" | Run `Set-ExecutionPolicy -Scope Process Bypass`. |
 | Deploy says another app is running | Stop it from the App Lab app list, or run `adb shell arduino-app-cli app stop user:<name>`. |
-| `<board-name>.local` doesn't open | Run `adb shell hostname -I` and open `http://<that-IP>:7000` instead. |
+| The web page doesn't open | Run `scripts\open_page.ps1` (USB tunnel, `http://localhost:7000`). Addresses like `172.17.x.x` from `hostname -I` are internal to the board and can't be reached from the laptop. |
 | The board keeps rebooting | Use the 5 V / 3 A USB-C supply. |

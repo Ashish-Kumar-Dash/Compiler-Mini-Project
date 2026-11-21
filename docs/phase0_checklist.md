@@ -71,7 +71,7 @@ scripts\linux_kill.ps1        # hard-kill the Python container
 ```
 - [ ] Do the LEDs keep cycling?
 - [ ] Wait 30 s: did the Python side restart **by itself**? Check with
-      `adb shell arduino-app-cli app ps`.
+      `adb shell arduino-app-cli app list`.
 
 ```powershell
 scripts\linux_restore.ps1     # docker start
