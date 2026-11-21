@@ -90,9 +90,64 @@ def parse_trace(text: str, ir: IRProgram, name: str = "trace") -> Trace:
     return Trace(rows)
 
 
+def load_scenario(path: str | Path, ir: IRProgram) -> list[list[int]]:
+    """A compiled-in scenario (§9.2): a trace whose rows are consecutive ticks from t = 0."""
+    p = Path(path)
+    tr = parse_trace(p.read_text(encoding="utf-8"), ir, p.as_posix())
+    for i, (t, _) in enumerate(tr.rows):
+        if t != i * ir.sample_ms:
+            raise TraceError(f"{p.as_posix()}: scenario row {i + 1} has t_ms {t}; rows must be consecutive "
+                             f"ticks 0, {ir.sample_ms}, {2 * ir.sample_ms}, ...")
+    if not tr.rows:
+        raise TraceError(f"{p.as_posix()}: empty scenario")
+    if len(tr.rows) > 3000:
+        raise TraceError(f"{p.as_posix()}: scenario longer than 3000 rows")
+    return [codes for _, codes in tr.rows]
+
+
 def load_trace(path: str | Path, ir: IRProgram) -> Trace:
     p = Path(path)
     return parse_trace(p.read_text(encoding="utf-8"), ir, p.as_posix())
+
+
+class LinuxSim:
+    """The Linux side under the §9.10 time model, row by row. Its output depends only on the trace
+    (Linux sees sensor codes, never MCU state), so the differential test can precompute the
+    heartbeats it delivers to the compiled C++."""
+
+    def __init__(self, table: dict, kill_at: int | None = None, revive_at: int | None = None,
+                 deaf_at: int | None = None) -> None:
+        self.engine = LinuxEngine(table)
+        self.H = table["heartbeat_ms"]
+        self.kill_at, self.revive_at, self.deaf_at = kill_at, revive_at, deaf_at
+        self.last_sent: int | None = None
+        self.last_ack = 0
+        self.seq = 0
+        self.was_dead = False
+
+    def row(self, t: int, codes: list[int]) -> tuple[tuple[int, int, int] | None, list[tuple]]:
+        """Process row t after the MCU pass. Returns (heartbeat to deliver at the next row or None,
+        NT events)."""
+        dead = self.kill_at is not None and t >= self.kill_at and             not (self.revive_at is not None and t >= self.revive_at)
+        if dead:
+            self.was_dead = True
+            return None, []
+        if self.was_dead:
+            self.engine.reset()
+            self.last_sent = None
+            self.was_dead = False
+        changed, nts = False, []
+        if self.deaf_at is None or t < self.deaf_at:
+            old = self.engine.mask
+            mask, fired, _ = self.engine.on_sample(t, codes)
+            self.last_ack = t
+            changed = mask != old
+            nts = [("NT", t, rid) for rid in fired]
+        if changed or self.last_sent is None or t - self.last_sent >= self.H:
+            self.seq = (self.seq + 1) & 0xFFFFFFFF
+            self.last_sent = t
+            return (self.seq, self.engine.mask, self.last_ack), nts
+        return None, nts
 
 
 @dataclass
@@ -106,53 +161,31 @@ class Interpreter:
     keep_frames: bool = False
     frames: list[tuple[int, list[int]]] = field(default_factory=list)
     states: list[tuple[int, list[int]]] = field(default_factory=list)   # (t, cur) after each pass
+    heartbeats: list[tuple[int, tuple[int, int, int]]] = field(default_factory=list)  # (row t, hb)
 
     def run(self, trace: Trace) -> list[tuple]:
         table = build_table(self.ir)
         self.table = table
         unoq = table["target"] == "unoq"
-        H = table["heartbeat_ms"]
         mcu = McuModel(table, self.mutant)
         self.mcu = mcu
-        linux = LinuxEngine(table) if unoq else None
+        linux = LinuxSim(table, self.kill_at, self.revive_at, self.deaf_at) if unoq else None
         events: list[tuple] = []
         pending: tuple[int, int, int] | None = None
-        last_sent: int | None = None
-        last_ack = 0
-        seq = 0
-        was_dead = False
         for idx, (t, codes) in enumerate(trace.rows):
             if idx == 0 and self.link_up_at_start:
                 events.append(mcu.scenario_start(t, 1))
             if pending is not None:
+                self.heartbeats.append((t, pending))
                 mcu.deliver_heartbeat(pending[0], pending[1], pending[2], t)
                 pending = None
             events.extend(mcu.step(t, codes))
             self.states.append((t, list(mcu.cur)))
             if self.keep_frames:
                 self.frames.append((t, self._frame(mcu, codes, t)))
-            if not unoq:
-                continue
-            dead = self.kill_at is not None and t >= self.kill_at and \
-                not (self.revive_at is not None and t >= self.revive_at)
-            if dead:
-                was_dead = True
-                continue
-            if was_dead:
-                linux.reset()
-                last_sent = None
-                was_dead = False
-            changed = False
-            if self.deaf_at is None or t < self.deaf_at:
-                old = linux.mask
-                mask, fired, _ = linux.on_sample(t, codes)
-                last_ack = t
-                changed = mask != old
-                events.extend(("NT", t, rid) for rid in fired)
-            if changed or last_sent is None or t - last_sent >= H:
-                seq = (seq + 1) & 0xFFFFFFFF
-                pending = (seq, linux.mask, last_ack)
-                last_sent = t
+            if linux is not None:
+                pending, nts = linux.row(t, codes)
+                events.extend(nts)
         return events
 
     def _frame(self, mcu: McuModel, codes: list[int], t: int) -> list[int]:
