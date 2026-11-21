@@ -68,7 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
         sp.add_argument("--mutant", choices=["disable-monitor", "single-pass-never", "fs-over-ensure"])
         if name == "matrix-preview":
             sp.add_argument("--at", type=int, required=True, metavar="T_MS")
-    for name in ("build", "fuzz", "deploy"):
+    sp = sub.add_parser("build", help="generate the sketch / App folder")
+    _add_common(sp)
+    sp.add_argument("-o", "--out", required=True, help="output directory")
+    sp.add_argument("--input", choices=["pins", "sim", "scenario"], default="pins")
+    sp.add_argument("--scenario", help="scenario CSV (trace format, consecutive ticks)")
+    sp.add_argument("--demo-controls", action="store_true", help="add the pause control to the page")
+    for name in ("fuzz", "deploy"):
         sp = sub.add_parser(name)
         sp.add_argument("args", nargs=argparse.REMAINDER)
     return p
@@ -158,6 +164,32 @@ def cmd_matrix_preview(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_build(args: argparse.Namespace) -> int:
+    from .backend.app_writer import OutputError, write
+    from .interp import TraceError, load_scenario
+    res = _compile_or_report(args)
+    if res is None:
+        return 1
+    if args.input == "scenario" and not args.scenario:
+        raise UsageError("--input scenario needs --scenario FILE")
+    scenario = None
+    if args.scenario:
+        try:
+            scenario = load_scenario(args.scenario, res.ir)
+        except (TraceError, OSError) as exc:
+            raise UsageError(str(exc)) from exc
+    try:
+        files = write(res.ir, args.out, args.input, scenario)
+    except OutputError as exc:
+        raise UsageError(str(exc)) from exc
+    warnings = sum(1 for d in res.sink.items if d.severity == "warning")
+    print(f"built {args.out} (board {res.ir.board}, target {res.ir.target}, input {args.input}"
+          f"{', ' + str(len(scenario)) + ' scenario rows' if scenario else ''}; {warnings} warning(s))")
+    for f in files:
+        print(f"  {f}")
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     path = Path(args.file)
     if not path.is_file():
@@ -183,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.cmd == "check":
             return cmd_check(args)
+        if args.cmd == "build":
+            return cmd_build(args)
         if args.cmd == "run":
             return cmd_run(args)
         if args.cmd == "matrix-preview":

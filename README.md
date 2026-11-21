@@ -24,7 +24,8 @@ The design and the normative semantics are in **[Architecture.md](Architecture.m
 | Semantic checks (every S code), ADC-code lowering, placement | done |
 | Analyses: intervals, safety proofs, resources, `iotc check` report | done |
 | Reference interpreter, shared runtime, LED-matrix renderer, `iotc run` | done |
-| Back ends, dashboard, fuzzer | in progress (Architecture §15) |
+| MCU back end (C++ sketch), `iotc build`, differential test vs interpreter | done |
+| Linux back end, dashboard, fuzzer | in progress (Architecture §15) |
 
 Try it:
 

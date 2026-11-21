@@ -144,3 +144,33 @@ You can just say "results are in the folder", and I'll read the files myself.
 | Deploy says another app is running | Stop it from the App Lab app list, or run `adb shell arduino-app-cli app stop user:<name>`. |
 | The web page doesn't open | Run `scripts\open_page.ps1` (USB tunnel, `http://localhost:7000`). Addresses like `172.17.x.x` from `hostname -I` are internal to the board and can't be reached from the laptop. |
 | The board keeps rebooting | Use the 5 V / 3 A USB-C supply. |
+
+---
+
+## Part C — B1: the compiler's own sketch on the board (10 min)
+
+This is the first generated program to run on the board: everything runs on the microcontroller,
+driven by a built-in 50 s scenario. No Linux rules, no web page.
+
+```powershell
+py -3.13 -m iotc build examples\greenhouse_board.iot --target mcu-only --input scenario --scenario scenarios\demo_tour.csv -o build\b1_mcu_only
+scripts\deploy.ps1 build\b1_mcu_only -NoFollow
+```
+
+The first start compiles on the board (1–3 min). Then watch one loop (it repeats every 50 s). The
+compiler predicts exactly this (`iotc run`, times from the start of each loop):
+
+| Time | LEDs | LED matrix |
+|---|---|---|
+| 0–3 s | both off | top bar in the middle, ticks visible |
+| 3 s | **LED4 blue ON** (fan) | bar jumps right |
+| 9 s | LED4 off (hysteresis: it stayed on at 32 C, goes off at 28 C) | |
+| ~17.6 s | **LED3 red ON** (heater, average below 18 C) | bar far left |
+| 26 s | no change | **`!` on the right** for 1 s (fan refused: heater is ON) |
+| 30 s | **LED4 blue ON, LED3 red OFF** together | |
+| 34–42 s | blue stays ON | **`E` on the right** (ENSURE forcing) |
+| 42 s | LED4 off | |
+| 50 s | loop restarts | |
+
+**Send me:** does it match? Note anything different (times are approximate ±1 s), and whether
+the sketch compiled. If App Lab shows a compile error, copy the error text.
