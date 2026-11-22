@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .escape import csv_field
 from .ir import IRProgram
-from .runtime.engine import LinuxEngine
+from .runtime.engine import LinuxSide
 from .runtime.matrix import frame
 from .runtime.mcu import McuModel
 from .table import build_table
@@ -111,43 +111,32 @@ def load_trace(path: str | Path, ir: IRProgram) -> Trace:
 
 
 class LinuxSim:
-    """The Linux side under the §9.10 time model, row by row. Its output depends only on the trace
-    (Linux sees sensor codes, never MCU state), so the differential test can precompute the
-    heartbeats it delivers to the compiled C++."""
+    """The Linux side under the §9.10 time model, row by row: runtime.engine.LinuxSide (the same
+    code the board runs) plus kill / revive / deaf injection. Its output depends only on the trace,
+    so the differential test can precompute the heartbeats it delivers to the compiled C++."""
 
     def __init__(self, table: dict, kill_at: int | None = None, revive_at: int | None = None,
                  deaf_at: int | None = None) -> None:
-        self.engine = LinuxEngine(table)
-        self.H = table["heartbeat_ms"]
+        self.side = LinuxSide(table)
         self.kill_at, self.revive_at, self.deaf_at = kill_at, revive_at, deaf_at
-        self.last_sent: int | None = None
-        self.last_ack = 0
-        self.seq = 0
         self.was_dead = False
 
     def row(self, t: int, codes: list[int]) -> tuple[tuple[int, int, int] | None, list[tuple]]:
-        """Process row t after the MCU pass. Returns (heartbeat to deliver at the next row or None,
-        NT events)."""
-        dead = self.kill_at is not None and t >= self.kill_at and             not (self.revive_at is not None and t >= self.revive_at)
+        """Process row t after the MCU pass: (heartbeat to deliver at the next row, NT events)."""
+        dead = (self.kill_at is not None and t >= self.kill_at
+                and not (self.revive_at is not None and t >= self.revive_at))
         if dead:
             self.was_dead = True
             return None, []
         if self.was_dead:
-            self.engine.reset()
-            self.last_sent = None
+            self.side.reset()
             self.was_dead = False
-        changed, nts = False, []
-        if self.deaf_at is None or t < self.deaf_at:
-            old = self.engine.mask
-            mask, fired, _ = self.engine.on_sample(t, codes)
-            self.last_ack = t
-            changed = mask != old
-            nts = [("NT", t, rid) for rid in fired]
-        if changed or self.last_sent is None or t - self.last_sent >= self.H:
-            self.seq = (self.seq + 1) & 0xFFFFFFFF
-            self.last_sent = t
-            return (self.seq, self.engine.mask, self.last_ack), nts
-        return None, nts
+        if self.deaf_at is not None and t >= self.deaf_at:
+            if self.side.last_sent is None or t - self.side.last_sent >= self.side.H:
+                return self.side.beat(t), []          # still heartbeating, acknowledgement stale
+            return None, []
+        hb, fired, _ = self.side.on_sample(t, codes)
+        return hb, [("NT", t, rid) for rid in fired]
 
 
 @dataclass

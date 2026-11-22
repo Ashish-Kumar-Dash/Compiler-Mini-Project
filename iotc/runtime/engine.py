@@ -174,3 +174,37 @@ class LinuxEngine:
                 mask |= 1 << rule["mask_bit"]
         self.mask = mask
         return mask, fired, reset
+
+
+class LinuxSide:
+    """Sample processing plus the heartbeat policy of §9.4, shared by the board's main.py and the
+    interpreter (which adds kill / revive / deaf injection around it).
+
+    on_sample(t, codes) -> (heartbeat or None, fired NOTIFY rule ids, reset detected).
+    A heartbeat (seq, mask, ack) is due when the mask changed, none was sent yet, or at least
+    heartbeat_ms of sample time passed since the last one."""
+
+    def __init__(self, table: dict) -> None:
+        self.engine = LinuxEngine(table)
+        self.H = table["heartbeat_ms"]
+        self.seq = 0
+        self.last_sent: int | None = None
+        self.last_ack = 0
+
+    def reset(self) -> None:
+        self.engine.reset()
+        self.last_sent = None
+
+    def on_sample(self, t: int, codes: list[int]) -> tuple[tuple[int, int, int] | None, list[int], bool]:
+        old = self.engine.mask
+        mask, fired, reset = self.engine.on_sample(t, codes)
+        self.last_ack = t & U32
+        if mask != old or reset or self.last_sent is None or t - self.last_sent >= self.H:
+            return self.beat(t), fired, reset
+        return None, fired, reset
+
+    def beat(self, t: int) -> tuple[int, int, int]:
+        """A heartbeat now (also used by the caller's fallback timer when samples stop)."""
+        self.seq = (self.seq + 1) & U32
+        self.last_sent = t
+        return self.seq, self.engine.mask & U32, self.last_ack
