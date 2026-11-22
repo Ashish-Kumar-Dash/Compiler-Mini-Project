@@ -19,7 +19,7 @@ iotc = "iotc.cli:main"
 include = ["iotc*"]
 
 [tool.setuptools.package-data]
-"iotc.backend" = ["templates/**/*"]
+"iotc.backend" = ["templates/**/*", "web/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

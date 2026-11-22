@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' ws: wss:; img-src 'self' data:">
+<title>iotc dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">iotc</span><span id="title">…</span></div>
+  <div class="status">
+    <span id="link" class="pill wait">waiting for the board</span>
+    <span id="hb" class="muted"></span>
+  </div>
+  <div class="controls" id="controls" hidden>
+    <button id="pause" type="button">Pause Linux rule engine (10 s)</button>
+    <button id="resume" type="button">Resume</button>
+  </div>
+</header>
+<div id="banner" class="banner" hidden>LINUX LINK LOST: this page is not receiving data from the board</div>
+<main>
+  <section class="card">
+    <h2>Sensors</h2>
+    <div id="sensor-list"></div>
+  </section>
+  <section class="card">
+    <h2>Actuators</h2>
+    <div id="act-list" class="acts"></div>
+    <h3>LED matrix (mirror)</h3>
+    <canvas id="matrix" width="286" height="176"></canvas>
+  </section>
+  <section class="card wide">
+    <h2>Last 60 seconds</h2>
+    <canvas id="chart" height="230"></canvas>
+    <div id="legend" class="legend"></div>
+  </section>
+  <section class="card">
+    <h2>Placement <span class="muted small">(decided by the compiler)</span></h2>
+    <table id="ptable"><thead><tr><th>rule</th><th>runs on</th><th>reason</th></tr></thead><tbody></tbody></table>
+  </section>
+  <section class="card">
+    <h2>Safety</h2>
+    <ul id="slist" class="safety"></ul>
+    <h3>Timing</h3>
+    <dl id="sdl" class="stats"></dl>
+  </section>
+  <section class="card wide">
+    <h2>Event log</h2>
+    <ol id="loglist" class="log"></ol>
+  </section>
+  <section class="card wide">
+    <details><summary>Compiler report (iotc check)</summary><pre id="report"></pre></details>
+  </section>
+</main>
+<div id="toast" class="toast" hidden></div>
+<script src="libs/socket.io.min.js"></script>
+<script src="libs/arduino.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

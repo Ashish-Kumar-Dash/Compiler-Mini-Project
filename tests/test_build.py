@@ -126,9 +126,12 @@ def test_writer_refuses_foreign_directory_and_replaces_own(tmp_path):
     assert not (own / "stale.txt").exists()
 
 
-def test_unoq_target_app_is_not_yet_available(tmp_path):
-    with pytest.raises(OutputError):
-        write(ir_of(), tmp_path / "x")
+def test_unoq_app_layout(tmp_path):
+    files = write(ir_of(), tmp_path / "x", "sim", None, None, True)
+    for f in ("python/main.py", "python/iotc_runtime/engine.py", "assets/index.html", "assets/app.js",
+              "assets/config.json", "assets/libs/socket.io.min.js", "assets/libs/arduino.js", "sketch/iotc_gen.h"):
+        assert f in files, f
+    assert not any(f.startswith("assets/data") for f in files)      # App Lab exports drop data/
 
 
 @pytest.mark.parametrize("stem,expected", [("My Greenhouse", "my_greenhouse"), ("con", "app_con"),

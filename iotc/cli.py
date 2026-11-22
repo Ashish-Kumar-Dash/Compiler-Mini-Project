@@ -179,7 +179,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         except (TraceError, OSError) as exc:
             raise UsageError(str(exc)) from exc
     try:
-        files = write(res.ir, args.out, args.input, scenario)
+        files = write(res.ir, args.out, args.input, scenario, res.report, args.demo_controls)
     except OutputError as exc:
         raise UsageError(str(exc)) from exc
     warnings = sum(1 for d in res.sink.items if d.severity == "warning")

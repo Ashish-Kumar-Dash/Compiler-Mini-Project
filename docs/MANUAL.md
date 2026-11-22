@@ -174,3 +174,41 @@ compiler predicts exactly this (`iotc run`, times from the start of each loop):
 
 **Send me:** does it match? Note anything different (times are approximate ±1 s), and whether
 the sketch compiled. If App Lab shows a compile error, copy the error text.
+
+---
+
+## Part D — B2: the full UNO Q App with the web dashboard (15 min)
+
+Rules run on both processors: `cool`/`uncool` on the microcontroller, `warm`/`unwarm`/`alert`/`dry`
+on Linux. Sensor values come from sliders on the page.
+
+```powershell
+py -3.13 -m iotc build examples\greenhouse_board.iot --input sim --demo-controls --scenario scenarios\fallback_sweep.csv -o build\b2_board
+scripts\deploy.ps1 build\b2_board -NoFollow
+scripts\open_page.ps1
+```
+
+`open_page.ps1` tunnels the page over USB and opens `http://localhost:7000` (no Wi-Fi needed).
+Until the page connects, the board plays a slow 25–40 C sweep by itself; the fan LED (LED4 blue)
+follows it.
+
+**Try these, in order (Architecture §17 steps 5–9):**
+
+1. **Hysteresis:** temp slider to 40 → fan (LED4 blue) ON; back to 32 → stays ON; 28 → OFF.
+2. **Linux rule:** temp slider to 10, wait about 10 s → heater (LED3 red) ON. The log says
+   `heater ON · rule warm (Linux)`; the `warm` row in the placement table lights up.
+3. **Failsafe (soft):** press **Pause Linux rule engine (10 s)**. Within about 2 s: the pill turns red
+   (FAILSAFE), the heater goes OFF, the matrix shows `F`. Move the temp slider to 40: the fan still
+   turns ON (its rule runs on the microcontroller). After 10 s the link comes back UP.
+4. **NEVER refusal:** slider to 10 again, wait for the heater, then slider to 40 → the log shows
+   `fan ON refused by NEVER#1 (heater is ON)` and the matrix flashes `!`. About 10 s later the
+   heater turns OFF by itself and the fan comes ON.
+5. **ENSURE:** slider to 55 → fan forced ON, heater forced OFF, matrix `E`; after 5 s a toast says
+   "Overheat".
+6. **Real Linux kill (optional):** `scripts\linux_kill.ps1` → the page freezes, the banner says the
+   link is lost; on the board the matrix shows `F`, and after 3 s the board plays its own sweep and
+   the fan keeps following it. Restore with `scripts\linux_restore.ps1`, then run
+   `scripts\open_page.ps1` again.
+
+**Send me:** what worked, what looked wrong, and a screenshot of the page if you can. To stop:
+`adb shell arduino-app-cli app stop user:iotc_b2_board`.
