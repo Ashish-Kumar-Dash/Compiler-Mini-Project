@@ -84,6 +84,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--port", type=int, default=8000)
     sp.add_argument("--no-browser", action="store_true", help="do not open a browser tab")
     sp.add_argument("--seconds", type=float, default=None, help=argparse.SUPPRESS)   # tests: stop after N s
+    sp = sub.add_parser("dump", help="print one compiler stage: tokens, ast, ir or table")
+    _add_common(sp)
+    sp.add_argument("--stage", choices=["tokens", "ast", "ir", "table"], required=True)
     sp = sub.add_parser("doctor", help="check the laptop tools and the board before a demo")
     sp.add_argument("--ascii", action="store_true", help="ASCII-only output")
     for name in ("fuzz", "deploy"):
@@ -252,6 +255,33 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_dump(args: argparse.Namespace) -> int:
+    from . import dump
+    path = Path(args.file)
+    if not path.is_file():
+        raise UsageError(f"no such file: {args.file}")
+    if args.stage in ("tokens", "ast"):
+        from .ast import dump as ast_dump
+        from .frontend import parse_file
+        from .lexer import lex
+        from .source import load_source
+        sink = Sink()
+        if args.stage == "tokens":
+            text = dump.tokens_text(lex(load_source(str(path)), sink))
+        else:
+            front = parse_file(str(path), sink)
+            text = ast_dump(front.program) if front.program is not None else ""
+        if sink.has_errors():
+            print(render(sink.sorted(), load_source(str(path))), file=sys.stderr)
+        print(text, end="")
+        return 1 if sink.has_errors() else 0
+    res = _compile_or_report(args)
+    if res is None:
+        return 1
+    print(dump.ir_text(res.ir) if args.stage == "ir" else dump.table_text(res.ir), end="")
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     path = Path(args.file)
     if not path.is_file():
@@ -285,6 +315,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_matrix_preview(args)
         if args.cmd == "dashboard":
             return cmd_dashboard(args)
+        if args.cmd == "dump":
+            return cmd_dump(args)
         if args.cmd == "doctor":
             from . import doctor
             return doctor.main(args.ascii or not _stream_can_encode(sys.stdout))
