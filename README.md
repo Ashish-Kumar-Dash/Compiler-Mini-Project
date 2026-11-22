@@ -27,7 +27,9 @@ The design and the normative semantics are in **[Architecture.md](Architecture.m
 | MCU back end (C++ sketch), `iotc build`, differential test vs interpreter | done |
 | Linux back end (`main.py`), live web dashboard, full UNO Q App | done |
 | Virtual board (`iotc dashboard`): the full App on the laptop, as a demo backup | done |
-| Fuzzer, conformance mode, demo polish | in progress (Architecture §15) |
+| Conformance mode: the compiler predicts the board's event log, and the page checks it | done |
+| `iotc doctor`: pre-demo check of tools, board, versions and tunnel | done |
+| Demo card, report chapters, rehearsal | in progress |
 
 Try it:
 

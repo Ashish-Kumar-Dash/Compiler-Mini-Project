@@ -287,3 +287,39 @@ and toasts all work as on the board. To run the 50 s tour unattended, with no sl
 py -3.13 -m iotc dashboard examples\greenhouse_board.iot --scenario scenarios\demo_tour.csv --autoplay
 ```
 Stop with Ctrl+C. Add `--host 0.0.0.0` to open it from a phone on the same Wi-Fi.
+
+---
+
+## Part G — B4: conformance mode on the board (10 min)
+
+The compiler predicts the board's exact event log for the 50 s tour: every LED change and every
+NOTIFY, with the tick it happens on. The board plays the tour, and the page checks each line
+against the prediction. The same check passes in the tests against the compiled C++ and against
+the generated Linux program.
+
+First stop the B2 App (only one App runs at a time), then build and deploy:
+```powershell
+adb shell arduino-app-cli app stop user:iotc_b2_board
+py -3.13 -m iotc build examples\greenhouse_board.iot --input scenario --scenario scenarios\demo_tour.csv --demo-controls -o build\b4_conformance
+scripts\deploy.ps1 build\b4_conformance -NoFollow
+scripts\open_page.ps1
+```
+The build prints `conformance mode: the compiler predicts 9/9 event(s) per scenario iteration`.
+
+On the page, the **Conformance** card first says "Waiting for the scenario to start". Within about 3 s
+of `Linux link UP`, the tour starts. The LEDs and matrix follow the same timings as B1 (Part C). The
+table fills in as the tour plays: each predicted line gets **✓ exact** when the board reports
+it on the same tick.
+
+1. Let **two full iterations** run (about 1 min 45 s). Expect `✓ Iteration 1: 9/9 predicted events
+   matched exactly`, and the same for iteration 2. A line marked **≈ +100 ms** means a Bridge round trip
+   took longer than one 100 ms tick that time. That is not a logic error, but tell me how many.
+2. **Control test (optional, iteration 3):** press **Pause Linux rule engine** at about 15 s into an
+   iteration. The `warm` heater line and later lines must now show ✗ missing or unexpected. This proves
+   the check is not always green. The next iteration should match fully again.
+
+**Send me:** the summary lines for iterations 1–3 from the bottom of the card, and a screenshot of the card.
+To stop: `adb shell arduino-app-cli app stop user:iotc_b4_conformance`.
+
+**Before any board session**, `py -3.13 -m iotc doctor` checks Python, WSL g++, adb, the board, the
+App Lab version (against Phase 0), the running App, the Bridge router and the page tunnel.
