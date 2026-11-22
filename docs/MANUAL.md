@@ -23,7 +23,7 @@ cd C:\Users\akd24\Documents\Mini-Project
 ```powershell
 py -3.13 tasks.py test
 ```
-Expect `618 passed` (or more).
+Expect `670 passed` (or more).
 
 ```powershell
 py -3.13 -m iotc check examples\greenhouse_board.iot
@@ -212,3 +212,78 @@ follows it.
 
 **Send me:** what worked, what looked wrong, and a screenshot of the page if you can. To stop:
 `adb shell arduino-app-cli app stop user:iotc_b2_board`.
+
+---
+
+## Part E — B3: failsafe on the real board (20 min)
+
+This rebuilds the B2 App with the day-8 changes. It then tests the three ways the Linux side can
+die (page pause, `docker pause`, `docker kill`) and measures how fast the MCU fails safe. The
+compiler predicts a link DOWN **1.5–2.1 s** after the last heartbeat: the 2000 ms timeout, minus up
+to 500 ms since the last beat, plus up to one 100 ms tick.
+
+```powershell
+py -3.13 -m iotc build examples\greenhouse_board.iot --input sim --demo-controls --scenario scenarios\fallback_sweep.csv -o build\b2_board
+scripts\deploy.ps1 build\b2_board -NoFollow
+scripts\open_page.ps1
+```
+
+**Before each test, get the heater ON:** move the temp slider to about 10 C and wait about 10 s until
+LED3 is red and the log shows `heater ON · rule warm (Linux)`. Without this the failsafe has
+nothing to switch off. This was why B2 showed only `link DOWN/UP`.
+
+**E1. Page pause (3 times).** Press **Pause Linux rule engine (10 s)**. In the event log, note the
+board times of these three lines:
+`Linux rule engine paused…` → `Linux link DOWN` → `heater OFF · FAILSAFE`.
+While it is paused, move temp to 40: the fan (LED4 blue) must still come ON. After 10 s the log
+shows `Linux link UP`. Move temp back to 10 to get the heater ON before the next try.
+
+**E2. `docker pause` (frozen Linux).** With the heater ON, note the **board time** in the page
+header, then run:
+```powershell
+scripts\linux_pause.ps1
+```
+The page freezes and the red "LINK LOST" banner appears after 1.5 s. On the board, within about 2 s,
+LED3 goes off and the matrix shows `F`. About 3 s later the matrix bar starts sweeping (the board's
+own fallback scenario), and LED4 follows it. Wait 20 s, then run:
+```powershell
+scripts\linux_restore.ps1
+```
+The page continues by itself, or press F5. Check the header: the **board time must have kept
+counting** (for example 812 s, not 5 s). A small number would mean the MCU was reset, which must not
+happen.
+
+**E3. `docker kill` (crashed Linux).** Same as E2, but use `scripts\linux_kill.ps1` and then
+`scripts\linux_restore.ps1`. After the restore, run `scripts\open_page.ps1` again: the Python program
+restarts from scratch, so the old log is gone. Again check that the board time kept counting and
+that the log starts with `Linux link UP`.
+
+For E2/E3, film the board with your phone, with the PowerShell window in view. The script prints the
+exact time of the pause or kill, and the video shows when LED3 goes off.
+
+**Send me:**
+- The three E1 rows (paused / DOWN / FAILSAFE board times).
+- For E2/E3: kill-to-LED-off seconds (from the video), whether the sweep started, and the board
+  time before and after.
+- Anything unexpected, such as the page not coming back or the App showing "failed" in App Lab.
+
+To stop: `adb shell arduino-app-cli app stop user:iotc_b2_board`.
+
+---
+
+## Part F — Laptop backup: the same App with no board
+
+If the board fails during the demo, this runs the **same generated App** on the laptop. It runs
+the same main.py, the same dashboard and the same MCU logic (the Python model that the C++ is tested
+against). The page shows a **VIRTUAL BOARD** badge, so it can't be mistaken for the real board.
+
+```powershell
+py -3.13 tasks.py virtual
+```
+(This is short for `py -3.13 -m iotc dashboard examples\greenhouse_board.iot --scenario scenarios\fallback_sweep.csv`.)
+A browser tab opens at `http://127.0.0.1:8000`. The sliders, pause button, log, chart, matrix mirror
+and toasts all work as on the board. To run the 50 s tour unattended, with no slider input:
+```powershell
+py -3.13 -m iotc dashboard examples\greenhouse_board.iot --scenario scenarios\demo_tour.csv --autoplay
+```
+Stop with Ctrl+C. Add `--host 0.0.0.0` to open it from a phone on the same Wi-Fi.
