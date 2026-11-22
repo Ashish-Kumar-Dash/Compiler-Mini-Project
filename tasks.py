@@ -8,6 +8,7 @@ Tasks
   cosim     co-simulation of the host unoq sketch + generated main.py
   arduino   arduino-cli compile checks for every example (needs arduino-cli + cores)
   demo      build the board demo App into build/greenhouse_board
+  virtual   run the demo App on a virtual board on this laptop (no board needed)
   probe     print how to deploy the Phase 0 probe App
 """
 from __future__ import annotations
@@ -78,6 +79,10 @@ def task_demo(args: list[str]) -> int:
     return _iotc("build", str(DEMO), "--board", "unoq", "--input", "sim", "--demo-controls",
                  "--scenario", str(ROOT / "scenarios" / "fallback_sweep.csv"),
                  "-o", str(ROOT / "build" / "greenhouse_board"), *args)
+
+
+def task_virtual(args: list[str]) -> int:
+    return _iotc("dashboard", str(DEMO), "--scenario", str(ROOT / "scenarios" / "fallback_sweep.csv"), *args)
 
 
 def task_probe(args: list[str]) -> int:

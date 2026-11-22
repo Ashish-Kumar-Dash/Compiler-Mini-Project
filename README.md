@@ -26,6 +26,7 @@ The design and the normative semantics are in **[Architecture.md](Architecture.m
 | Reference interpreter, shared runtime, LED-matrix renderer, `iotc run` | done |
 | MCU back end (C++ sketch), `iotc build`, differential test vs interpreter | done |
 | Linux back end (`main.py`), live web dashboard, full UNO Q App | done |
+| Virtual board (`iotc dashboard`): the full App on the laptop, as a demo backup | done |
 | Fuzzer, conformance mode, demo polish | in progress (Architecture §15) |
 
 Try it:
@@ -34,7 +35,12 @@ Try it:
 py -3.13 -m iotc check examples/greenhouse_board.iot
 py -3.13 -m iotc run examples/greenhouse_board.iot --trace tests/traces/demo_script.csv --kill-linux-at 15000 --revive-linux-at 20000
 py -3.13 -m iotc matrix-preview examples/greenhouse_board.iot --trace tests/traces/demo_script.csv --kill-linux-at 15000 --at 16700
+py -3.13 -m iotc dashboard examples/greenhouse_board.iot --scenario scenarios/fallback_sweep.csv   # no board needed
 ```
+
+`iotc dashboard` runs the generated `main.py` unchanged, against a virtual MCU. The virtual MCU
+uses the reference model plus the sketch's Bridge glue. The command serves the same dashboard at
+`http://127.0.0.1:8000`, with a "VIRTUAL BOARD" badge.
 
 ## Quick start (development)
 

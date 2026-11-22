@@ -74,6 +74,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--input", choices=["pins", "sim", "scenario"], default="pins")
     sp.add_argument("--scenario", help="scenario CSV (trace format, consecutive ticks)")
     sp.add_argument("--demo-controls", action="store_true", help="add the pause control to the page")
+    sp = sub.add_parser("dashboard", help="run the full App on a virtual board on this laptop (demo backup)")
+    _add_common(sp)
+    sp.add_argument("--scenario", help="fallback scenario CSV: plays when no slider moves for 3 s")
+    sp.add_argument("--autoplay", action="store_true", help="ignore the sliders and loop the scenario")
+    sp.add_argument("--host", default="127.0.0.1", help="bind address (0.0.0.0 to reach it from a phone)")
+    sp.add_argument("--port", type=int, default=8000)
+    sp.add_argument("--no-browser", action="store_true", help="do not open a browser tab")
+    sp.add_argument("--seconds", type=float, default=None, help=argparse.SUPPRESS)   # tests: stop after N s
     for name in ("fuzz", "deploy"):
         sp = sub.add_parser(name)
         sp.add_argument("args", nargs=argparse.REMAINDER)
@@ -190,6 +198,45 @@ def cmd_build(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_dashboard(args: argparse.Namespace) -> int:
+    import time
+    import webbrowser
+
+    from .interp import TraceError, load_scenario
+    from .virtual_board import VirtualBoard
+    res = _compile_or_report(args)
+    if res is None:
+        return 1
+    if res.ir.board != "unoq" or res.ir.target != "unoq":
+        raise UsageError("iotc dashboard runs the full UNO Q App: use --board unoq and --target unoq")
+    if args.autoplay and not args.scenario:
+        raise UsageError("--autoplay needs --scenario FILE")
+    scenario = None
+    if args.scenario:
+        try:
+            scenario = load_scenario(args.scenario, res.ir)
+        except (TraceError, OSError) as exc:
+            raise UsageError(str(exc)) from exc
+    try:
+        vb = VirtualBoard(res.ir, res.report, scenario, autoplay=args.autoplay, host=args.host, port=args.port)
+    except OSError as exc:
+        raise UsageError(f"cannot listen on {args.host}:{args.port}: {exc}") from exc
+    vb.start()
+    print(f"iotc virtual board: {vb.url}  (Ctrl+C to stop)", flush=True)
+    print("This is a laptop simulation of the UNO Q App, not the board.", flush=True)
+    if not args.no_browser:
+        webbrowser.open(vb.url)
+    try:
+        deadline = None if args.seconds is None else time.monotonic() + args.seconds
+        while deadline is None or time.monotonic() < deadline:
+            time.sleep(0.2)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        vb.close()
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     path = Path(args.file)
     if not path.is_file():
@@ -221,6 +268,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_run(args)
         if args.cmd == "matrix-preview":
             return cmd_matrix_preview(args)
+        if args.cmd == "dashboard":
+            return cmd_dashboard(args)
         print(f"iotc {args.cmd}: not implemented yet", file=sys.stderr)
         return 2
     except UsageError as exc:
