@@ -1,6 +1,6 @@
 # iotc — IoT Sensor DSL Compiler for the Arduino UNO Q
 
-Compiler Design mini project (B.Tech Year 3).
+Compiler Design mini project
 
 `iotc` compiles one `.iot` rule file into a complete Arduino UNO Q App:
 - an MCU sketch (STM32U585);
