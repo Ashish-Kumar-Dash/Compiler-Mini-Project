@@ -79,3 +79,13 @@ pre { white-space: pre; overflow-x: auto; font-size: 12px; background: #0f172a; 
 .toast { position: fixed; right: 20px; bottom: 20px; background: var(--linux); color: #fff; padding: 12px 18px; border-radius: 8px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
 @media (max-width: 520px) { main { padding: 12px; } header { padding: 10px 12px; } }
+.conf-summary { font-weight: 600; margin-bottom: 8px; padding: 6px 10px; border-radius: 6px; background: #f1f5f9; }
+.conf-summary.good { background: #dcfce7; color: #14532d; }
+.conf-summary.bad { background: #fee2e2; color: #7f1d1d; }
+tr.conf-exact td:last-child { color: var(--ok); font-weight: 600; }
+tr.conf-shifted td:last-child { color: var(--warn); font-weight: 600; }
+tr.conf-missing td:last-child { color: var(--bad); font-weight: 600; }
+tr.conf-pending td { color: var(--muted); }
+.conf-history { list-style: none; padding: 0; margin: 10px 0 0; font-size: 13px; }
+.conf-history .good { color: var(--ok); }
+.conf-history .bad { color: var(--bad); }

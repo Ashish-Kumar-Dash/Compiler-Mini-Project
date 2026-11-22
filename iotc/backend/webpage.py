@@ -55,7 +55,16 @@ def config(ir: IRProgram, report: Report | None, input_mode: str, scenario, demo
         "placement": [p for p in rep["placement"] if p["rule"] not in ("SAFETY", "FAILSAFE")],
         "safety": rep["safety"],
         "report": to_ascii(report.text()) if report else "",
+        "conformance": _conformance(ir, input_mode, scenario),
     }
+
+
+def _conformance(ir: IRProgram, input_mode: str, scenario) -> dict | None:
+    """The compiler's predicted log for a scenario App (conformance mode), else None."""
+    if input_mode != "scenario" or ir.target != "unoq" or not scenario:
+        return None
+    from ..conformance import predict
+    return predict(ir, scenario)
 
 
 def assets(ir: IRProgram, report: Report | None, input_mode: str, scenario, demo_controls: bool) -> dict[str, bytes]:

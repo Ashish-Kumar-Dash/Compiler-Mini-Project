@@ -131,6 +131,7 @@ function build() {
     legend.appendChild(sp);
   });
   if (CFG.demo_controls) $('controls').hidden = false;
+  if (CFG.conformance) $('conf-card').hidden = false;
   if (CFG.virtual) {
     const v = el('span', 'pill virtual', 'VIRTUAL BOARD');
     v.title = 'iotc dashboard: the generated App running against a simulated MCU, not the UNO Q';
@@ -192,6 +193,7 @@ function apply(st) {
   rows.forEach(([k, v]) => { dl.appendChild(el('dt', '', k)); dl.appendChild(el('dd', '', v)); });
   drawMatrix(st.matrix);
   drawChart();
+  drawConformance();
 }
 
 function partnerOf(detail, act) {
@@ -220,6 +222,7 @@ function sentence(e) {
 }
 
 function addLog(e, quiet) {
+  confFeed(e);
   const [text, cls] = sentence(e);
   const li = el('li');
   li.appendChild(el('span', 't', secs(e.t)));
@@ -247,6 +250,116 @@ function toast(text) {
   t.hidden = false;
   clearTimeout(toast.timer);
   toast.timer = setTimeout(() => { t.hidden = true; }, 4000);
+}
+
+// ---------------------------------------------------------------- conformance mode
+// The board reports a scenario start (SY) per iteration; every later EV/NT/LK line is keyed by its
+// tick index from that start and matched against the compiler's prediction (config.conformance).
+const conf = { n: 0, t0: null, actual: [], history: [] };
+const CONF_WINDOW = 10;     // ticks: a matching line this far away counts as shifted, not missing
+
+function confReset() { conf.n = 0; conf.t0 = null; conf.actual = []; conf.history = []; }
+
+function confBody(line) {   // 'EV,3000,fan,ON,...' -> 'EV,fan,ON,...'
+  const i = line.indexOf(',');
+  const j = line.indexOf(',', i + 1);
+  return j < 0 ? line : line.slice(0, i) + line.slice(j);
+}
+
+function confFeed(e) {
+  if (!CFG.conformance || !e.line) return;
+  if (e.kind === 'SY') {
+    if (conf.t0 !== null) conf.history.push(confResult(true));
+    conf.n = Number(e.line.split(',')[2]);
+    conf.t0 = e.t;
+    conf.actual = [];
+    return;
+  }
+  if (conf.t0 === null || !['EV', 'NT', 'LK'].includes(e.kind)) return;
+  conf.actual.push({ tick: Math.floor((e.t - conf.t0) / CFG.conformance.sample_ms), body: confBody(e.line) });
+}
+
+function confResult(final) {
+  const P = CFG.conformance;
+  const pred = P.iterations[Math.min(conf.n, P.iterations.length) - 1] || [];
+  const nowTick = lastState ? Math.floor((lastState.t - conf.t0) / P.sample_ms) : 0;
+  const used = conf.actual.map(() => false);
+  const rows = pred.map((p) => {
+    let best = -1;
+    conf.actual.forEach((a, k) => {
+      if (used[k] || a.body !== p.body || Math.abs(a.tick - p.tick) > CONF_WINDOW) return;
+      if (best < 0 || Math.abs(a.tick - p.tick) < Math.abs(conf.actual[best].tick - p.tick)) best = k;
+    });
+    if (best >= 0) {
+      used[best] = true;
+      const a = conf.actual[best];
+      return { p: p, a: a, status: a.tick === p.tick ? 'exact' : 'shifted' };
+    }
+    return { p: p, a: null, status: final || nowTick > p.tick + CONF_WINDOW ? 'missing' : 'pending' };
+  });
+  const count = (st) => rows.filter((r) => r.status === st).length;
+  return { n: conf.n, rows: rows, extra: conf.actual.filter((a, k) => !used[k]), total: pred.length,
+           exact: count('exact'), shifted: count('shifted'), missing: count('missing'), pending: count('pending'),
+           beyond: conf.n > P.iterations.length && !P.steady };
+}
+
+function confText(body) {
+  const p = body.split(',');
+  if (p[0] === 'EV') return p[1] + ' ' + p[2] + ' · ' + p[3] + ' · ' + p[4] + (p[5] && p[5] !== '-' ? ' ' + p[5] : '');
+  if (p[0] === 'NT') return 'NOTIFY ' + p[1] + ': ' + p.slice(2).join(',');
+  if (p[0] === 'LK') return 'Linux link ' + p[1];
+  return body;
+}
+
+function confSummary(r) {
+  let s = 'Iteration ' + r.n + ': ' + r.exact + '/' + r.total + ' predicted events matched exactly';
+  if (r.shifted) s += ', ' + r.shifted + ' shifted';
+  if (r.missing) s += ', ' + r.missing + ' missing';
+  if (r.extra.length) s += ', ' + r.extra.length + ' not predicted';
+  if (r.pending) s += ' (' + r.pending + ' still to come)';
+  if (r.beyond) s += ' [compared with the last predicted iteration]';
+  return s;
+}
+
+function drawConformance() {
+  if (!CFG.conformance) return;
+  const S = CFG.conformance.sample_ms;
+  const sum = $('conf-summary');
+  const tb = $('conf-table').querySelector('tbody');
+  tb.textContent = '';
+  if (conf.t0 === null) {
+    sum.className = 'conf-summary';
+    sum.textContent = 'Waiting for the scenario to start (after the Linux link is UP, on an aligned tick)…';
+    return;
+  }
+  const r = confResult(false);
+  sum.textContent = confSummary(r);
+  sum.className = 'conf-summary ' + (r.missing || r.shifted || r.extra.length ? 'bad' : 'good');
+  const mark = { exact: '✓ exact', pending: '…', missing: '✗ missing' };
+  const secsT = (tick) => (tick * S / 1000).toFixed(1) + ' s';
+  r.rows.forEach((row) => {
+    const tr = el('tr', 'conf-' + row.status);
+    tr.appendChild(el('td', '', secsT(row.p.tick)));
+    tr.appendChild(el('td', '', confText(row.p.body)));
+    tr.appendChild(el('td', '', row.a ? secsT(row.a.tick) : '–'));
+    const d = row.a ? (row.a.tick - row.p.tick) * S : 0;
+    tr.appendChild(el('td', '', row.status === 'shifted' ? '≈ ' + (d > 0 ? '+' : '') + d + ' ms' : mark[row.status]));
+    tb.appendChild(tr);
+  });
+  r.extra.forEach((a) => {
+    const tr = el('tr', 'conf-missing');
+    tr.appendChild(el('td', '', secsT(a.tick)));
+    tr.appendChild(el('td', '', '(not predicted)'));
+    tr.appendChild(el('td', '', confText(a.body)));
+    tr.appendChild(el('td', '', '✗ unexpected'));
+    tb.appendChild(tr);
+  });
+  const ul = $('conf-history');
+  ul.textContent = '';
+  conf.history.slice(-6).reverse().forEach((h) => {
+    const ok = !h.missing && !h.shifted && !h.extra.length;
+    ul.appendChild(el('li', ok ? 'good' : 'bad', (ok ? '✓ ' : '✗ ') + confSummary(h)));
+  });
 }
 
 // ---------------------------------------------------------------- drawing
@@ -366,6 +479,7 @@ function connect() {
   ui = new WebUI();
   ui.on_message('snapshot', (d) => {
     hist.length = 0; actHist.length = 0;
+    confReset();
     const nS = CFG.sensors.length;
     (d.history || []).forEach((h) => {           // [t, codes..., actuator states...]
       hist.push(h.slice(0, 1 + nS));
