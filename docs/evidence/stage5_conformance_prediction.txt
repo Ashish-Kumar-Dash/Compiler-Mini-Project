@@ -1,0 +1,25 @@
+# Stage 5: the compiler's predicted board log for the 50 s tour (conformance mode)
+# reproduce: py -3.13 -m iotc build examples/greenhouse_board.iot --input scenario --scenario scenarios/demo_tour.csv -o build/b4_conformance
+
+scenario rows 500 (x 100 ms), aligned start every 2500 ms; iteration 2 repeats from then on: True
+
+iteration 1
+  tick   30  (  3.0 s)  EV,fan,ON,cool,applied,-
+  tick   90  (  9.0 s)  EV,fan,OFF,uncool,applied,-
+  tick  177  ( 17.7 s)  EV,heater,ON,warm,applied,-
+  tick  260  ( 26.0 s)  EV,fan,ON,cool,refused,never#1
+  tick  301  ( 30.1 s)  EV,fan,ON,cool,applied,-
+  tick  301  ( 30.1 s)  EV,heater,OFF,unwarm,applied,-
+  tick  390  ( 39.0 s)  NT,alert,"Overheat"
+  tick  420  ( 42.0 s)  EV,fan,OFF,uncool,applied,-
+  tick  470  ( 47.0 s)  NT,dry,"Air too dry"
+iteration 2
+  tick   30  (  3.0 s)  EV,fan,ON,cool,applied,-
+  tick   90  (  9.0 s)  EV,fan,OFF,uncool,applied,-
+  tick  177  ( 17.7 s)  EV,heater,ON,warm,applied,-
+  tick  260  ( 26.0 s)  EV,fan,ON,cool,refused,never#1
+  tick  301  ( 30.1 s)  EV,fan,ON,cool,applied,-
+  tick  301  ( 30.1 s)  EV,heater,OFF,unwarm,applied,-
+  tick  390  ( 39.0 s)  NT,alert,"Overheat"
+  tick  420  ( 42.0 s)  EV,fan,OFF,uncool,applied,-
+  tick  470  ( 47.0 s)  NT,dry,"Air too dry"

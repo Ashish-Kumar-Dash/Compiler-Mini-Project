@@ -1,0 +1,260 @@
+# Stage 2: selected error programs and the compiler's messages (one example per code lives in examples/errors/)
+# reproduce: py -3.13 -m iotc check examples/errors/<file>.iot
+
+==== examples/errors/L005_unknown_word.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHN temp > 35 THEN fan ON;
+---- compiler output
+error[L005]: unknown word 'WHN'
+  --> examples/errors/L005_unknown_word.iot:3:12
+   |
+ 3 | RULE cool: WHN temp > 35 THEN fan ON;
+   |            ^^^ did you mean WHEN?
+
+examples/errors/L005_unknown_word.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/L003_glued_unit.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN temp > 35C THEN fan ON;
+---- compiler output
+error[L003]: unit glued to number: '35C'
+  --> examples/errors/L003_glued_unit.iot:3:24
+   |
+ 3 | RULE cool: WHEN temp > 35C THEN fan ON;
+   |                        ^^^ units need a space: 35 C
+
+examples/errors/L003_glued_unit.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/P001_missing_semicolon.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125
+ACTUATOR fan AT D7;
+RULE cool: WHEN temp > 35 THEN fan ON;
+---- compiler output
+error[P001]: expected ';', found `ACTUATOR` on the next line
+  --> examples/errors/P001_missing_semicolon.iot:1:47
+   |
+ 1 | SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125
+   |                                               ^ end each declaration with ';'
+
+examples/errors/P001_missing_semicolon.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/P001_reversed_comparison.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN 35 < temp THEN fan ON;
+---- compiler output
+error[P001]: expected a sensor name or avg/min/max(...), found number `35`
+  --> examples/errors/P001_reversed_comparison.iot:3:17
+   |
+ 3 | RULE cool: WHEN 35 < temp THEN fan ON;
+   |                 ^^ write the sensor first: temp > 35
+
+examples/errors/P001_reversed_comparison.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/S001_undeclared_name.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN temprature > 35 THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+---- compiler output
+error[S001]: unknown sensor 'temprature'
+  --> examples/errors/S001_undeclared_name.iot:3:17
+   |
+ 3 | RULE cool: WHEN temprature > 35 THEN fan ON;
+   |                 ^^^^^^^^^^ did you mean 'temp'?
+
+examples/errors/S001_undeclared_name.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/S010_unit_dimension.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN temp > 50 PCT THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+---- compiler output
+error[S010]: unit PCT (ratio) does not match sensor 'temp' (C, temperature)
+  --> examples/errors/S010_unit_dimension.iot:3:27
+   |
+ 3 | RULE cool: WHEN temp > 50 PCT THEN fan ON;
+   |                           ^^^ compare temp in C or F
+
+examples/errors/S010_unit_dimension.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/S021_pin_twice.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+ACTUATOR heater AT D7;
+RULE cool: WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+RULE warm: WHEN temp < 10 THEN heater ON;
+RULE unwarm: WHEN temp > 15 THEN heater OFF;
+---- compiler output
+error[S021]: pin D7 is already used
+  --> examples/errors/S021_pin_twice.iot:3:20
+   |
+ 3 | ACTUATOR heater AT D7;
+   |                    ^^ give each declaration its own pin
+   = note: D7 first bound here (examples/errors/S021_pin_twice.iot:2:17)
+
+examples/errors/S021_pin_twice.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/E103_conflict.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp < 40 THEN fan OFF;
+---- compiler output
+error[E103]: conflict: 'cool' sets fan ON and 'uncool' sets it OFF when temp ∈ (35, 40) C
+  --> examples/errors/E103_conflict.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 40 THEN fan OFF;
+   |      ^^^^^^ OFF wins at runtime; make the two conditions disjoint
+   = note: 'cool' sets fan ON (examples/errors/E103_conflict.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/E103_conflict.iot:4:6)
+
+examples/errors/E103_conflict.iot: 1 error, 0 warnings, 0 notes
+
+==== examples/errors/W104_no_hysteresis.iot (exit 0)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp <= 35 THEN fan OFF;
+---- compiler output
+warning[W104]: no hysteresis: 'cool' (fan ON) and 'uncool' (fan OFF) touch at temp = 35 C
+  --> examples/errors/W104_no_hysteresis.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp <= 35 THEN fan OFF;
+   |      ^^^^^^ leave a gap so fan does not chatter
+   = note: 'cool' sets fan ON (examples/errors/W104_no_hysteresis.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W104_no_hysteresis.iot:4:6)
+
+examples/errors/W104_no_hysteresis.iot: 0 errors, 1 warning, 0 notes
+
+==== examples/errors/W113_no_adc_code.iot (exit 0)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool: WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+RULE blip: WHEN temp > 35 AND temp < 35.1 THEN NOTIFY "blip";
+---- compiler output
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/W113_no_adc_code.iot:4:6
+   |
+ 4 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/W113_no_adc_code.iot:3:6)
+   = note: 'uncool' sets fan OFF (examples/errors/W113_no_adc_code.iot:4:6)
+
+warning[W113]: rule 'blip' can never fire on the board: no ADC code lies in temp ∈ (35, 35.1) C (codes step by about 0.1613 C)
+  --> examples/errors/W113_no_adc_code.iot:5:17
+   |
+ 5 | RULE blip: WHEN temp > 35 AND temp < 35.1 THEN NOTIFY "blip";
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^ widen the interval to at least one ADC step (see the code thresholds)
+
+examples/errors/W113_no_adc_code.iot: 0 errors, 1 warning, 1 note
+
+==== examples/errors/P201_realtime_window_on_linux.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+RULE cool REALTIME 10ms: WHEN avg(temp, 5min) > 35 THEN fan ON;
+RULE uncool REALTIME 10ms: WHEN avg(temp, 5min) < 30 THEN fan OFF;
+---- compiler output
+error[P201]: REALTIME rule 'cool' uses avg(temp, 5min), which --place-windows=linux puts on Linux
+  --> examples/errors/P201_realtime_window_on_linux.iot:3:31
+   |
+ 3 | RULE cool REALTIME 10ms: WHEN avg(temp, 5min) > 35 THEN fan ON;
+   |                               ^^^^^^^^^^^^^^^ the Bridge has no bounded latency; use --place-windows=mcu or remove REALTIME
+   = note: REALTIME deadline here (examples/errors/P201_realtime_window_on_linux.iot:3:20)
+
+error[P201]: REALTIME rule 'uncool' uses avg(temp, 5min), which --place-windows=linux puts on Linux
+  --> examples/errors/P201_realtime_window_on_linux.iot:4:33
+   |
+ 4 | RULE uncool REALTIME 10ms: WHEN avg(temp, 5min) < 30 THEN fan OFF;
+   |                                 ^^^^^^^^^^^^^^^ the Bridge has no bounded latency; use --place-windows=mcu or remove REALTIME
+   = note: REALTIME deadline here (examples/errors/P201_realtime_window_on_linux.iot:4:22)
+
+examples/errors/P201_realtime_window_on_linux.iot: 2 errors, 0 warnings, 0 notes
+
+==== examples/errors/E116_contradictory_ensure.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR fan AT D7;
+ACTUATOR heater AT D8;
+RULE cool: WHEN temp > 35 THEN fan ON;
+RULE uncool: WHEN temp < 30 THEN fan OFF;
+RULE warm: WHEN temp < 10 THEN heater ON;
+RULE unwarm: WHEN temp > 15 THEN heater OFF;
+SAFETY NEVER fan ON AND heater ON;
+SAFETY NEVER fan ON AND heater OFF;
+SAFETY ENSURE fan ON WHEN temp > 50;
+---- compiler output
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'cool' (fan ON) and 'uncool' (fan OFF)
+  --> examples/errors/E116_contradictory_ensure.iot:5:6
+   |
+ 5 | RULE uncool: WHEN temp < 30 THEN fan OFF;
+   |      ^^^^^^
+   = note: 'cool' sets fan ON (examples/errors/E116_contradictory_ensure.iot:4:6)
+   = note: 'uncool' sets fan OFF (examples/errors/E116_contradictory_ensure.iot:5:6)
+
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'warm' (heater ON) and 'unwarm' (heater OFF)
+  --> examples/errors/E116_contradictory_ensure.iot:7:6
+   |
+ 7 | RULE unwarm: WHEN temp > 15 THEN heater OFF;
+   |      ^^^^^^
+   = note: 'warm' sets heater ON (examples/errors/E116_contradictory_ensure.iot:6:6)
+   = note: 'unwarm' sets heater OFF (examples/errors/E116_contradictory_ensure.iot:7:6)
+
+error[E116]: ENSURE fan ON is impossible: the NEVER pairs force heater both ON and OFF
+   --> examples/errors/E116_contradictory_ensure.iot:10:1
+    |
+ 10 | SAFETY ENSURE fan ON WHEN temp > 50;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ remove or change one of the NEVER pairs involved
+
+examples/errors/E116_contradictory_ensure.iot: 1 error, 0 warnings, 2 notes
+
+==== examples/errors/E109_initial_state.iot (exit 1)
+---- source
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125;
+ACTUATOR pump AT D7;
+ACTUATOR valve AT D8;
+RULE p1: WHEN temp > 35 THEN pump ON;
+RULE p0: WHEN temp < 30 THEN pump OFF;
+RULE v1: WHEN temp < 10 THEN valve ON;
+RULE v0: WHEN temp > 15 THEN valve OFF;
+SAFETY NEVER pump OFF AND valve OFF;
+---- compiler output
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'p1' (pump ON) and 'p0' (pump OFF)
+  --> examples/errors/E109_initial_state.iot:5:6
+   |
+ 5 | RULE p0: WHEN temp < 30 THEN pump OFF;
+   |      ^^
+   = note: 'p1' sets pump ON (examples/errors/E109_initial_state.iot:4:6)
+   = note: 'p0' sets pump OFF (examples/errors/E109_initial_state.iot:5:6)
+
+info[I105]: hysteresis gap of 5 C (32 ADC codes) between 'v1' (valve ON) and 'v0' (valve OFF)
+  --> examples/errors/E109_initial_state.iot:7:6
+   |
+ 7 | RULE v0: WHEN temp > 15 THEN valve OFF;
+   |      ^^
+   = note: 'v1' sets valve ON (examples/errors/E109_initial_state.iot:6:6)
+   = note: 'v0' sets valve OFF (examples/errors/E109_initial_state.iot:7:6)
+
+error[E109]: the initial state violates NEVER pump OFF AND valve OFF: pump starts OFF and valve starts OFF
+  --> examples/errors/E109_initial_state.iot:8:1
+   |
+ 8 | SAFETY NEVER pump OFF AND valve OFF;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ add FAILSAFE valve ON
+
+examples/errors/E109_initial_state.iot: 1 error, 0 warnings, 2 notes

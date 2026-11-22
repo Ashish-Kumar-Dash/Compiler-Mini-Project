@@ -1,0 +1,17 @@
+# Stage 5: reference interpreter on the demo trace, Linux killed at 15 s and revived at 20 s
+# reproduce: py -3.13 -m iotc run examples/greenhouse_board.iot --trace tests/traces/demo_script.csv --kill-linux-at 15000 --revive-linux-at 20000
+
+LK,100,UP
+EV,3800,heater,ON,warm,applied,-
+EV,15500,fan,ON,cool,refused,never#1
+LK,16700,DOWN
+EV,16700,fan,ON,cool,applied,-
+EV,16700,heater,OFF,FAILSAFE,failsafe,-
+EV,20000,fan,OFF,uncool,applied,-
+LK,20100,UP
+EV,20100,heater,ON,warm,applied,-
+EV,33000,fan,ON,cool,refused,never#1
+EV,37000,fan,ON,cool,applied,-
+EV,37000,heater,OFF,unwarm,applied,-
+NT,50000,alert,"Overheat"
+NT,55000,dry,"Air too dry"

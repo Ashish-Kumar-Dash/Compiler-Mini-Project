@@ -1,0 +1,26 @@
+# Stage 5: automated tests per file (collected)
+# reproduce: py -3.13 tasks.py test
+
+   14  tests/test_analysis.py
+   17  tests/test_build.py
+    6  tests/test_cli.py
+    9  tests/test_conformance.py
+   17  tests/test_differential.py
+    3  tests/test_doctor.py
+    3  tests/test_dump.py
+   81  tests/test_errors.py
+   25  tests/test_escape.py
+   15  tests/test_examples.py
+    8  tests/test_fixture_ir.py
+   29  tests/test_interp.py
+  153  tests/test_ir.py
+   87  tests/test_lexer.py
+   13  tests/test_linux.py
+   63  tests/test_lower.py
+   59  tests/test_parser.py
+    3  tests/test_phase0_apps.py
+   18  tests/test_sema.py
+    7  tests/test_source.py
+    5  tests/test_virtual_board.py
+   50  tests/test_window.py
+  685  total

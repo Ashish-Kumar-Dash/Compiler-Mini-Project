@@ -1,0 +1,16 @@
+# Stage 1: abstract syntax tree (one node per declaration, @line:col)
+# reproduce: py -3.13 -m iotc dump examples/greenhouse_board.iot --stage ast
+
+SENSOR temp AT A0 ANALOG UNIT C RANGE -40..125 @3:1
+SENSOR humidity AT A1 ANALOG UNIT PCT RANGE 0..100 @4:1
+ACTUATOR fan AT LED4B @5:1
+ACTUATOR heater AT LED3R @6:1
+RULE cool REALTIME 20ms: WHEN temp > 35 THEN fan ON @8:1
+RULE uncool REALTIME 20ms: WHEN temp < 30 THEN fan OFF @9:1
+RULE warm: WHEN avg(temp, 10000ms) < 18 THEN heater ON @10:1
+RULE unwarm: WHEN avg(temp, 10000ms) > 22 THEN heater OFF @11:1
+RULE alert: WHEN temp > 45 FOR 5000ms THEN NOTIFY 'Overheat' @12:1
+RULE dry: WHEN humidity < 20 FOR 3000ms THEN NOTIFY 'Air too dry' @13:1
+NEVER heater ON AND fan ON @15:1
+ENSURE fan ON WHEN temp > 50 @16:1
+FAILSAFE heater OFF @17:1

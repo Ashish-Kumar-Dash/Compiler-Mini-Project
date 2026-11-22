@@ -1,0 +1,17 @@
+// Board-only demo program for the Arduino UNO Q (Architecture.md §17).
+// Actuators are the onboard RGB LEDs; sensor values come from web sliders (--input sim).
+SENSOR   temp     AT A0 ANALOG UNIT C   RANGE -40..125;
+SENSOR   humidity AT A1 ANALOG UNIT PCT RANGE 0..100;
+ACTUATOR fan      AT LED4B;
+ACTUATOR heater   AT LED3R;
+
+RULE cool   REALTIME 20ms: WHEN temp > 35 THEN fan ON;
+RULE uncool REALTIME 20ms: WHEN temp < 30 THEN fan OFF;
+RULE warm:   WHEN avg(temp, 10s) < 18 THEN heater ON;
+RULE unwarm: WHEN avg(temp, 10s) > 22 THEN heater OFF;
+RULE alert:  WHEN temp > 45 FOR 5s THEN NOTIFY "Overheat";
+RULE dry:    WHEN humidity < 20 FOR 3s THEN NOTIFY "Air too dry";
+
+SAFETY NEVER heater ON AND fan ON;
+SAFETY ENSURE fan ON WHEN temp > 50;
+FAILSAFE heater OFF;

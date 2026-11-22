@@ -9,6 +9,8 @@ Tasks
   arduino   arduino-cli compile checks for every example (needs arduino-cli + cores)
   demo      build the board demo App into build/greenhouse_board
   virtual   run the demo App on a virtual board on this laptop (no board needed)
+  evidence  regenerate docs/evidence/ (one artifact per compiler stage)
+  backups   build every demo App and backup (board, conformance, mcu-only, Wokwi) into build/
   probe     print how to deploy the Phase 0 probe App
 """
 from __future__ import annotations
@@ -83,6 +85,29 @@ def task_demo(args: list[str]) -> int:
 
 def task_virtual(args: list[str]) -> int:
     return _iotc("dashboard", str(DEMO), "--scenario", str(ROOT / "scenarios" / "fallback_sweep.csv"), *args)
+
+
+def task_evidence(args: list[str]) -> int:
+    return _run(sys.executable, str(ROOT / "scripts" / "make_evidence.py"), *args)
+
+
+def task_backups(args: list[str]) -> int:
+    ex, sc, b = str(DEMO), ROOT / "scenarios", ROOT / "build"
+    jobs = [
+        ("build", ex, "--input", "sim", "--demo-controls", "--scenario", str(sc / "fallback_sweep.csv"),
+         "-o", str(b / "b2_board")),
+        ("build", ex, "--input", "scenario", "--demo-controls", "--scenario", str(sc / "demo_tour.csv"),
+         "-o", str(b / "b4_conformance")),
+        ("build", ex, "--target", "mcu-only", "--input", "scenario", "--scenario", str(sc / "demo_tour.csv"),
+         "-o", str(b / "backup_mcu_only")),
+        ("build", str(ROOT / "examples" / "greenhouse_wokwi.iot"), "--board", "uno", "--target", "mcu-only",
+         "-o", str(b / "wokwi_sketch")),
+    ]
+    for job in jobs:
+        rc = _iotc(*job)
+        if rc:
+            return rc
+    return 0
 
 
 def task_probe(args: list[str]) -> int:

@@ -1,0 +1,56 @@
+# Stage 3: event IR after checks and lowering
+# reproduce: py -3.13 -m iotc dump examples/greenhouse_board.iot --stage ir
+
+program examples/greenhouse_board.iot  board unoq  target unoq
+  sample 100 ms, heartbeat 500 ms, failsafe timeout 2000 ms, windows placed on linux
+
+sensors
+  s0 temp AT A0 ANALOG C [-40, 125]  code map x(c) = -40 + c*165/1023, c in 0..1023
+  s1 humidity AT A1 ANALOG PCT [0, 100]  code map x(c) = 0 + c*100/1023, c in 0..1023
+
+actuators
+  a0 fan AT LED4B (active-low)  init OFF  failsafe -
+  a1 heater AT LED3R (active-low)  init OFF  failsafe OFF
+
+windows
+  w0 temp over 10s: 32 buckets, computed on Linux
+
+rules (event IR: WHEN box [FOR] -> action, compiled to integer code tests)
+  r0 cool  on MCU  (REALTIME 20ms)
+      box     temp in (35, 125]
+      test    temp: code >= 466
+      action  fan := ON
+      why     REALTIME 20ms
+  r1 uncool  on MCU  (REALTIME 20ms)
+      box     temp in [-40, 30)
+      test    temp: code <= 433
+      action  fan := OFF
+      why     REALTIME 20ms
+  r2 warm  on LINUX  (mask bit 0)
+      box     avg(temp, 10s) in [-40, 18)
+      test    avg(temp, 10s): window non-empty and 5*sum < 1798*count
+      action  heater := ON
+      why     avg(temp, 10s): window history kept on Linux
+  r3 unwarm  on LINUX  (mask bit 1)
+      box     avg(temp, 10s) in (22, 125]
+      test    avg(temp, 10s): window non-empty and 5*sum > 1922*count
+      action  heater := OFF
+      why     avg(temp, 10s): window history kept on Linux
+  r4 alert  on LINUX  (FOR 5s)
+      box     temp in (45, 125]
+      test    temp: code >= 528
+      action  NOTIFY 'Overheat'
+      why     NOTIFY leaves the MCU
+  r5 dry  on LINUX  (FOR 3s)
+      box     humidity in [0, 20)
+      test    humidity: code <= 204
+      action  NOTIFY 'Air too dry'
+      why     NOTIFY leaves the MCU
+
+safety
+  never#1  NOT (heater ON AND fan ON)
+  ensure#1  fan ON WHEN temp in (50, 125]
+      test    temp: code >= 559
+      closure fan ON, heater OFF
+  failsafe closure  heater OFF
+  initial state     fan OFF, heater OFF

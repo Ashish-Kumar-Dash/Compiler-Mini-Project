@@ -1,0 +1,140 @@
+{
+ "program": "greenhouse_board.iot",
+ "board": "unoq",
+ "target": "unoq",
+ "input": "sim",
+ "demo_controls": true,
+ "sample_ms": 100,
+ "deadline_ms": 20,
+ "sim_init": [
+  403,
+  512
+ ],
+ "sensors": [
+  {
+   "name": "temp",
+   "unit": "C",
+   "kind": "ANALOG",
+   "lo": -40.0,
+   "hi": 125.0,
+   "adc_max": 1023,
+   "ticks": [
+    {
+     "code": 359,
+     "label": "warm"
+    },
+    {
+     "code": 384,
+     "label": "unwarm"
+    },
+    {
+     "code": 433,
+     "label": "uncool"
+    },
+    {
+     "code": 466,
+     "label": "cool"
+    },
+    {
+     "code": 528,
+     "label": "alert"
+    },
+    {
+     "code": 559,
+     "label": "ENSURE#1"
+    }
+   ]
+  },
+  {
+   "name": "humidity",
+   "unit": "PCT",
+   "kind": "ANALOG",
+   "lo": 0.0,
+   "hi": 100.0,
+   "adc_max": 1023,
+   "ticks": [
+    {
+     "code": 204,
+     "label": "dry"
+    }
+   ]
+  }
+ ],
+ "actuators": [
+  {
+   "name": "fan",
+   "pin": "LED4B"
+  },
+  {
+   "name": "heater",
+   "pin": "LED3R"
+  }
+ ],
+ "nevers": [
+  {
+   "a": "heater",
+   "s1": "ON",
+   "b": "fan",
+   "s2": "ON"
+  }
+ ],
+ "placement": [
+  {
+   "rule": "cool",
+   "runs_on": "MCU",
+   "reason": "REALTIME 20ms"
+  },
+  {
+   "rule": "uncool",
+   "runs_on": "MCU",
+   "reason": "REALTIME 20ms"
+  },
+  {
+   "rule": "warm",
+   "runs_on": "Linux",
+   "reason": "avg(temp, 10s): window history kept on Linux"
+  },
+  {
+   "rule": "unwarm",
+   "runs_on": "Linux",
+   "reason": "avg(temp, 10s): window history kept on Linux"
+  },
+  {
+   "rule": "alert",
+   "runs_on": "Linux",
+   "reason": "NOTIFY leaves the MCU"
+  },
+  {
+   "rule": "dry",
+   "runs_on": "Linux",
+   "reason": "NOTIFY leaves the MCU"
+  }
+ ],
+ "safety": [
+  {
+   "status": "enforced",
+   "property": "NEVER heater ON AND fan ON",
+   "detail": [
+    "not proven: warm (heater ON on avg(temp, 10s) < 18) is not covered by a fan OFF rule",
+    "and cool (fan ON on temp > 35) can hold at the same time",
+    "→ enforced by the MCU monitor (incumbent wins)"
+   ]
+  },
+  {
+   "status": "proven",
+   "property": "ENSURE fan ON WHEN temp > 50",
+   "detail": [
+    "enforced by the MCU monitor every pass; closure: fan ON, heater OFF (W107)"
+   ]
+  },
+  {
+   "status": "proven",
+   "property": "FAILSAFE heater OFF",
+   "detail": [
+    "initial state; applied after 2000 ms without a fresh heartbeat"
+   ]
+  }
+ ],
+ "report": "Code thresholds (board unoq, 10-bit ADC)\n  cool      temp > 35            <=>  code >= 466  (code 466 = 35.16 C)\n  uncool    temp < 30            <=>  code <= 433  (code 433 = 29.84 C)\n  warm      avg(temp, 10s) < 18  <=>  5*sum < 1798*count  (average code < 359.6)\n  unwarm    avg(temp, 10s) > 22  <=>  5*sum > 1922*count  (average code > 384.4)\n  alert     temp > 45            <=>  code >= 528  (code 528 = 45.16 C)\n  dry       humidity < 20        <=>  code <= 204  (code 204 = 19.94 PCT)\n  ENSURE#1  temp > 50            <=>  code >= 559  (code 559 = 50.16 C)\n\nPlacement\n  rule      runs on  reason\n  cool      MCU      REALTIME 20ms\n  uncool    MCU      REALTIME 20ms\n  warm      Linux    avg(temp, 10s): window history kept on Linux\n  unwarm    Linux    avg(temp, 10s): window history kept on Linux\n  alert     Linux    NOTIFY leaves the MCU\n  dry       Linux    NOTIFY leaves the MCU\n  SAFETY    MCU      MCU owns the pins and can veto any write\n  FAILSAFE  MCU      applied by the MCU when Linux heartbeats stop\n\nSafety\n  [!] NEVER heater ON AND fan ON    not proven: warm (heater ON on avg(temp, 10s) < 18) is not covered by a fan OFF rule\n                                  and cool (fan ON on temp > 35) can hold at the same time\n                                  -> enforced by the MCU monitor (incumbent wins)\n  [ok] ENSURE fan ON WHEN temp > 50  enforced by the MCU monitor every pass; closure: fan ON, heater OFF (W107)\n  [ok] FAILSAFE heater OFF           initial state; applied after 2000 ms without a fresh heartbeat\n\nResources (board unoq, target unoq)\n  sample period      100 ms, 2 sensors\n  window             temp over 10s: 32 buckets on Linux\n  MCU window RAM     0 B\n  Linux mask bits    2 of 32\n  Bridge MCU->Linux  ~239 B/s (2.1% of 11520 B/s)\n  Linux->MCU max     28 B per message (limit 256)\n  LED matrix         2 sensor bars, 6 rule pixels, 2 actuator blocks",
+ "conformance": null
+}

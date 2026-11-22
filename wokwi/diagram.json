@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "author": "iotc",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 120, "left": 0, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot_temp", "top": -40, "left": 10, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot_humidity", "top": -40, "left": 120, "attrs": {} },
+    { "type": "wokwi-led", "id": "led_fan", "top": -50, "left": 250, "attrs": { "color": "blue", "label": "fan D7" } },
+    { "type": "wokwi-led", "id": "led_heater", "top": -50, "left": 320, "attrs": { "color": "red", "label": "heater D8" } },
+    { "type": "wokwi-resistor", "id": "r_fan", "top": 40, "left": 240, "rotate": 90, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r_heater", "top": 40, "left": 310, "rotate": 90, "attrs": { "value": "220" } }
+  ],
+  "connections": [
+    [ "uno:TX", "$serialMonitor:RX", "", [] ],
+    [ "uno:RX", "$serialMonitor:TX", "", [] ],
+    [ "pot_temp:VCC", "uno:5V", "red", [] ],
+    [ "pot_temp:GND", "uno:GND.1", "black", [] ],
+    [ "pot_temp:SIG", "uno:A0", "green", [] ],
+    [ "pot_humidity:VCC", "uno:5V", "red", [] ],
+    [ "pot_humidity:GND", "uno:GND.1", "black", [] ],
+    [ "pot_humidity:SIG", "uno:A1", "green", [] ],
+    [ "led_fan:A", "r_fan:1", "blue", [] ],
+    [ "r_fan:2", "uno:7", "blue", [] ],
+    [ "led_fan:C", "uno:GND.2", "black", [] ],
+    [ "led_heater:A", "r_heater:1", "red", [] ],
+    [ "r_heater:2", "uno:8", "red", [] ],
+    [ "led_heater:C", "uno:GND.2", "black", [] ]
+  ],
+  "dependencies": {}
+}
