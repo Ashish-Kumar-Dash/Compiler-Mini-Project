@@ -152,6 +152,17 @@ def test_pause_stops_heartbeats_and_evaluation(app):
     assert [1 for name, _ in app.rec.notifies if name == "heartbeat"]
 
 
+def test_pause_from_the_page_is_logged_with_board_time(app):
+    m = app.main
+    m.brain.on_sample(4200, [310, 512], 4.2)
+    m._dispatch(("ui", "pause", {"seconds": 10}), 4.25)
+    m._dispatch(("ui", "resume", {}), 5.0)
+    lines = [e["line"] for e in m.brain.log if e["kind"] == "I"]
+    assert lines == ["I,4200,Linux rule engine paused from the page: heartbeats stop",
+                     "I,4200,Linux rule engine resumed"]
+    assert ("event", m.brain.log[-1]) in app.rec.messages      # shown in the page's event log
+
+
 def test_mcu_reset_is_detected(app):
     lines = []
     brain = app.main.Brain(app.main.TABLE, app.rec.notify, lambda k, d: None, lines.append, lambda: 0.0)
@@ -177,6 +188,7 @@ def test_snapshot_and_state_are_json(app):
     snap = brain.snapshot(0.2)
     json.dumps(snap)
     assert len(snap["state"]["matrix"]) == 104 and snap["state"]["firing"][0] == 1   # cool firing
+    assert snap["history"][-1] == [100, 466, 512, 0, 0]     # t, codes, actuator states (chart bands)
 
 
 def test_dashboard_static_safety(app):

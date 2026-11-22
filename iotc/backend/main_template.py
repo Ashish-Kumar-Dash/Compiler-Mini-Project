@@ -109,7 +109,7 @@ class Brain:
         self.codes = codes
         self.have_sample = True
         self.last_t = int(t)
-        self.history.append([int(t)] + codes)
+        self.history.append([int(t)] + codes + list(self.cur))   # page: chart lines and ON bands
         if self.paused(now):
             return
         hb, fired, reset = self.side.on_sample(int(t), codes)
@@ -169,6 +169,10 @@ class Brain:
         c = max(0, min(int(code), self.t["sensors"][i]["adc_max"]))
         self.sim[i] = c
         self.sim_dirty = True
+
+    def note(self, text):
+        """An information line (I) for stdout and the page log, stamped with the board time."""
+        self._record({"kind": "I", "t": self.last_t, "text": text, "line": f"I,{self.last_t},{text}"})
 
     def pause(self, seconds, now):
         self.paused_until = now + max(0.0, min(float(seconds), 60.0))
@@ -307,10 +311,10 @@ def _dispatch(msg, now):
             brain.set_slider(data.get("sensor", -1), data.get("code", 0))
         elif what == "pause" and DEMO_CONTROLS:
             brain.pause(data.get("seconds", 10), now)
-            _emit(f"I,{brain.last_t},Linux rule engine paused from the page")
+            brain.note("Linux rule engine paused from the page: heartbeats stop")
         elif what == "resume":
             brain.resume()
-            _emit(f"I,{brain.last_t},Linux rule engine resumed")
+            brain.note("Linux rule engine resumed")
 
 
 def loop():

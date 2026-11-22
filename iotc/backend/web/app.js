@@ -76,7 +76,7 @@ function build() {
       box.appendChild(r);
     }
     const g = el('canvas', 'gauge');
-    g.id = 'g' + i; g.width = 600; g.height = 68;
+    g.id = 'g' + i;
     box.appendChild(g);
     list.appendChild(box);
   });
@@ -131,6 +131,11 @@ function build() {
     legend.appendChild(sp);
   });
   if (CFG.demo_controls) $('controls').hidden = false;
+  if (CFG.virtual) {
+    const v = el('span', 'pill virtual', 'VIRTUAL BOARD');
+    v.title = 'iotc dashboard: the generated App running against a simulated MCU, not the UNO Q';
+    $('link').parentNode.insertBefore(v, $('link'));
+  }
 }
 
 // ---------------------------------------------------------------- live updates
@@ -177,7 +182,8 @@ function apply(st) {
   const dl = $('sdl');
   dl.textContent = '';
   const rows = [
-    ['max pass', st.stats.max_pass_us + ' µs (deadline ' + (CFG.deadline_ms ? CFG.deadline_ms + ' ms' : 'none') + ')'],
+    CFG.virtual ? ['max pass', st.stats.max_pass_us + ' µs (laptop thread, not the MCU)']
+      : ['max pass', st.stats.max_pass_us + ' µs (deadline ' + (CFG.deadline_ms ? CFG.deadline_ms + ' ms' : 'none') + ')'],
     ['REALTIME overruns', st.stats.overruns],
     ['input faults', st.stats.faults],
     ['Bridge round trip', st.rtt.n ? st.rtt.median + ' ms median, ' + st.rtt.max + ' ms max (' + st.rtt.n + ')' : 'measuring…'],
@@ -210,7 +216,7 @@ function sentence(e) {
   }
   if (e.kind === 'NT') return ['NOTIFY ' + e.rule + ': ' + e.text, 'nt'];
   if (e.kind === 'LK') return [e.up ? 'Linux link UP' : 'Linux link DOWN: FAILSAFE states applied', e.up ? 'up' : 'down'];
-  return [e.text || e.line, ''];
+  return [e.text || e.line, e.kind === 'I' ? 'info' : ''];
 }
 
 function addLog(e, quiet) {
@@ -247,23 +253,26 @@ function toast(text) {
 function drawGauge(i, code) {
   const s = CFG.sensors[i];
   const c = $('g' + i);
+  const dpr = window.devicePixelRatio || 1;
+  const W = c.clientWidth || 300, H = 44;
+  if (c.width !== Math.round(W * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
   const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#e5e7eb';
-  ctx.fillRect(0, 22, W, 20);
+  ctx.fillRect(0, 8, W, 12);
   ctx.fillStyle = COLORS[i % COLORS.length];
-  ctx.fillRect(0, 22, W * code / s.adc_max, 20);
-  ctx.font = '16px system-ui, sans-serif';
+  ctx.fillRect(0, 8, W * code / s.adc_max, 12);
   s.ticks.forEach((tk) => {
     const x = W * tk.code / s.adc_max;
     ctx.fillStyle = '#111827';
-    ctx.fillRect(x - 1, 14, 3, 36);
+    ctx.fillRect(x - 1, 3, 2, 22);
   });
+  ctx.font = '11px system-ui, sans-serif';
   ctx.fillStyle = '#5e6b78';
-  ctx.fillText(fmtValue(s, 0), 2, 66);
+  ctx.fillText(fmtValue(s, 0), 0, 40);
   const hiTxt = fmtValue(s, s.adc_max);
-  ctx.fillText(hiTxt, W - ctx.measureText(hiTxt).width - 2, 66);
+  ctx.fillText(hiTxt, W - ctx.measureText(hiTxt).width, 40);
 }
 
 function drawMatrix(px) {
@@ -284,10 +293,25 @@ function drawMatrix(px) {
   }
 }
 
+// Vertical zoom: every sensor is drawn as a fraction of its own range; the view covers the visible
+// data and the rule thresholds (plus a margin), snapped to 5 % steps so it does not jitter.
+function chartZoom(shown) {
+  let lo = Infinity, hi = -Infinity;
+  shown.forEach((s, i) => {
+    s.ticks.forEach((tk) => { lo = Math.min(lo, tk.code / s.adc_max); hi = Math.max(hi, tk.code / s.adc_max); });
+    hist.forEach((h) => { const f = h[1 + i] / s.adc_max; lo = Math.min(lo, f); hi = Math.max(hi, f); });
+  });
+  if (!isFinite(lo)) return [0, 1];
+  lo = Math.max(0, Math.floor((lo - 0.04) * 20) / 20);
+  hi = Math.min(1, Math.ceil((hi + 0.04) * 20) / 20);
+  if (hi - lo < 0.2) { const mid = (lo + hi) / 2; lo = Math.max(0, mid - 0.1); hi = Math.min(1, lo + 0.2); lo = hi - 0.2; }
+  return [lo, hi];
+}
+
 function drawChart() {
   const c = $('chart');
   const dpr = window.devicePixelRatio || 1;
-  const W = c.clientWidth, H = 230;
+  const W = c.clientWidth, H = 220;
   if (c.width !== Math.round(W * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
   const ctx = c.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -295,14 +319,27 @@ function drawChart() {
   if (!hist.length) return;
   const tEnd = hist[hist.length - 1][0];
   const tStart = tEnd - HISTORY_MS;
-  const bandH = 8, plotH = H - 18 - bandH * CFG.actuators.length;
+  const bandH = 8, plotH = H - 12 - bandH * CFG.actuators.length;
   const X = (t) => (t - tStart) / HISTORY_MS * W;
-  CFG.sensors.slice(0, COLORS.length).forEach((s, i) => {
-    const Y = (code) => 6 + (1 - code / s.adc_max) * (plotH - 12);
+  const shown = CFG.sensors.slice(0, COLORS.length);
+  const [zlo, zhi] = chartZoom(shown);
+  ctx.font = '11px system-ui, sans-serif';
+  const used = [[], []];             // label y positions on the left / right edge
+  shown.forEach((s, i) => {
+    const Y = (code) => 4 + (1 - (code / s.adc_max - zlo) / (zhi - zlo)) * (plotH - 8);
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = COLORS[i] + '88';
     ctx.lineWidth = 1;
-    s.ticks.forEach((tk) => { ctx.beginPath(); ctx.moveTo(0, Y(tk.code)); ctx.lineTo(W, Y(tk.code)); ctx.stroke(); });
+    s.ticks.forEach((tk) => {
+      const y = Y(tk.code);
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      const text = tk.label + ' (code ' + tk.code + ')';
+      const side = [0, 1].find((k) => used[k].every((u) => Math.abs(u - y) >= 12));
+      if (side === undefined || y < 12) return;
+      used[side].push(y);
+      ctx.fillStyle = COLORS[i];
+      ctx.fillText(text, side ? W - ctx.measureText(text).width - 4 : 4, y - 3);
+    });
     ctx.setLineDash([]);
     ctx.strokeStyle = COLORS[i];
     ctx.lineWidth = 2;
@@ -329,7 +366,11 @@ function connect() {
   ui = new WebUI();
   ui.on_message('snapshot', (d) => {
     hist.length = 0; actHist.length = 0;
-    (d.history || []).forEach((h) => hist.push(h));
+    const nS = CFG.sensors.length;
+    (d.history || []).forEach((h) => {           // [t, codes..., actuator states...]
+      hist.push(h.slice(0, 1 + nS));
+      if (h.length > 1 + nS) actHist.push([h[0]].concat(h.slice(1 + nS)));
+    });
     $('loglist').textContent = '';
     (d.log || []).forEach((e) => addLog(e, true));
     apply(d.state);
