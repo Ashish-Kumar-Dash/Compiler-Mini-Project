@@ -72,6 +72,7 @@ int main() {
     printf("O");
     for (int a = 0; a < iotc::N_ACT; a++) printf(" %d", shim_pin_level[iotc::ACT_PIN[a] & 0xFF]);
     printf("\nR %u\n", t);
+    fflush(stdout);                     // the conformance test drives the shim interactively
   }
   return 0;
 }

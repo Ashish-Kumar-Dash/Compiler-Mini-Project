@@ -25,13 +25,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from .backend import bridge
 from .backend.linux_py import sim_init
+from .board_model import VirtualMcu
 from .ir import IRProgram
-from .runtime.mcu import McuModel
 from .table import build_table
 
-SIM_TIMEOUT_MS = 3000           # cpp_core.py SIM_TIMEOUT_MS
 MAX_POST = 64 * 1024
 
 # Replacement for the WebUI brick's libs/arduino.js: the same three calls app.js uses.
@@ -59,109 +57,6 @@ window.WebUI = class WebUI {
 
 CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
                  ".css": "text/css; charset=utf-8", ".json": "application/json"}
-
-
-class VirtualMcu:
-    """The sketch's loop() in sim input mode around McuModel (cpp_core.py pass(), steps 1-12)."""
-
-    def __init__(self, table: dict, scenario: list[list[int]] | None, sim_init: list[int],
-                 clock, deadline_ms: int | None = None, autoplay: bool = False) -> None:
-        self.t = table
-        self.model = McuModel(table)
-        self.S = table["sample_ms"]
-        self.clock = clock                       # -> board milliseconds
-        self.scen = scenario or []
-        self.autoplay = autoplay and bool(self.scen)
-        self.lock = threading.Lock()
-        self.rx: tuple[int, int, int, int] | None = None
-        self.sim_rx = list(sim_init)
-        self.sim_rx_ms = 0
-        self.sim_ever = False
-        self.codes = list(sim_init)
-        self.fb_row = 0
-        self.last_n: int | None = None
-        self.provided: dict = {}
-        self.last_stats: int | None = None
-        self.deadline_us = (deadline_ms or 0) * 1000
-        self.max_pass_us = 0
-        self.overruns = 0
-        self.last_pass: float | None = None
-        self.rule_id = {r["name"]: i for i, r in enumerate(table["rules"])}
-
-    # -- Bridge seen from main.py: Bridge.notify / Bridge.provide -----------------------------
-    def notify(self, name: str, *args) -> None:
-        """Linux -> MCU (the provide_safe handlers): store under the lock, as the sketch does."""
-        msg = bridge.by_name(name)
-        kinds = [k for _, k in msg.args]
-        if len(args) != len(kinds) or not all(isinstance(a, int) and not isinstance(a, bool) for a in args):
-            raise TypeError(f"{name}{args}: the MCU handler takes exactly {len(kinds)} integers")
-        for a, k in zip(args, kinds):
-            bridge.check_arg(k, a)
-        now = self.clock()
-        with self.lock:
-            if name == "heartbeat":
-                self.rx = (args[0], args[1], args[2], now)
-            elif name == "sim_set":
-                s, c = args
-                if s < len(self.sim_rx) and c <= self.t["sensors"][s]["adc_max"]:
-                    self.sim_rx[s] = c
-                    self.sim_rx_ms = now
-                    self.sim_ever = True
-
-    def provide(self, name: str, fn) -> None:
-        self.provided[name] = fn
-
-    def _send(self, name: str, *args) -> None:
-        fn = self.provided.get(name)
-        if fn is not None:
-            fn(*args)
-
-    # -- one pass ---------------------------------------------------------------------------
-    def encode(self, ev: tuple) -> tuple:
-        _, t, a, s, src, result, detail = ev
-        if src == "FAILSAFE":
-            code = bridge.SRC_FAILSAFE
-        elif src.startswith("ENSURE#"):
-            code = bridge.SRC_ENSURE_BASE + int(src[7:]) - 1
-        else:
-            code = self.rule_id[src]
-        det = bridge.DETAIL_NONE if detail == "-" else int(detail.split("#")[1]) - 1
-        return (t, a, s, code, bridge.RESULTS.index(result), det)
-
-    def pass_(self, now: int) -> None:
-        wall = time.perf_counter()
-        if self.last_pass is not None:
-            dt = int((wall - self.last_pass) * 1e6)
-            self.max_pass_us = max(self.max_pass_us, dt)
-            if self.deadline_us and dt > self.deadline_us:
-                self.overruns += 1
-        self.last_pass = wall
-        with self.lock:                                         # step 1: snapshot (ADR-23)
-            rx, self.rx = self.rx, None
-            sim, ever, at = list(self.sim_rx), self.sim_ever, self.sim_rx_ms
-        if rx is not None:
-            self.model.deliver_heartbeat(*rx)
-            self._send("hb_ack", rx[0])
-        n = now // self.S
-        tick = n != self.last_n
-        if tick:                                                # step 3: inputs (sim latch)
-            self.last_n = n
-            stale = self.autoplay or not ever or now - at >= SIM_TIMEOUT_MS
-            if stale and self.scen:
-                self.codes = list(self.scen[self.fb_row])
-                self.fb_row = (self.fb_row + 1) % len(self.scen)
-            elif ever:
-                self.codes = sim
-        for ev in self.model.step(now, self.codes):
-            if ev[0] == "LK":
-                self._send("link", ev[1], 1 if ev[2] else 0)
-            elif ev[0] == "EV":
-                self._send("event", *self.encode(ev))
-        if tick:                                                # step 12: stream
-            self._send("sample", n * self.S, *self.codes)
-        if self.last_stats is None or now - self.last_stats >= 1000:
-            self.last_stats = now
-            self._send("stats", now, self.overruns, self.max_pass_us, 0)
 
 
 class Hub:
@@ -334,15 +229,18 @@ class VirtualBoard:
     """Build the App into a temporary folder, start the MCU and Linux threads and the web server."""
 
     def __init__(self, ir: IRProgram, report, scenario: list[list[int]] | None, *, autoplay: bool = False,
-                 host: str = "127.0.0.1", port: int = 8000, emit=None) -> None:
+                 host: str = "127.0.0.1", port: int = 8000, emit=None, input_mode: str = "sim") -> None:
         from .backend.app_writer import write
         if ir.board != "unoq" or ir.target != "unoq":
             raise ValueError("the virtual board runs the full UNO Q App: use --board unoq --target unoq")
         self.tmp = tempfile.TemporaryDirectory(prefix="iotc-virtual-")
         self.app = Path(self.tmp.name) / "app"
-        write(ir, self.app, "sim", scenario, report, True)
+        if input_mode == "scenario" and not scenario:
+            raise ValueError("--input scenario needs a scenario")
+        write(ir, self.app, input_mode, scenario, report, True)
         cfg = json.loads((self.app / "assets" / "config.json").read_text(encoding="utf-8"))
-        cfg["input"] = "autoplay" if autoplay and scenario else "sim"
+        if input_mode == "sim":
+            cfg["input"] = "autoplay" if autoplay and scenario else "sim"
         cfg["virtual"] = True
         self.config = json.dumps(cfg, ensure_ascii=False).encode("utf-8")
         self.t0 = time.monotonic()
@@ -352,7 +250,8 @@ class VirtualBoard:
             return int((time.monotonic() - self.t0) * 1000)
 
         # no REALTIME deadline: laptop thread timing says nothing about the MCU's pass time
-        self.mcu = VirtualMcu(build_table(ir), scenario, sim_init(ir, scenario), clock, None, autoplay)
+        self.mcu = VirtualMcu(build_table(ir), scenario, sim_init(ir, scenario), clock, None, autoplay,
+                              input_mode)
         self.main_mod, self.linux_loop = load_main(self.app, self.mcu, self.hub)
         if emit is not None:                     # redirect the App's stdout log (tests)
             self.main_mod._emit = emit

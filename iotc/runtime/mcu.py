@@ -62,32 +62,42 @@ class McuModel:
 
     # -- one pass ---------------------------------------------------------------------------
     def step(self, now: int, codes: list[int]) -> list[tuple]:
-        t, S, events = self.t, self.S, []
-        n = now // S
+        tick, tau, events = self.begin_pass(now)
+        return events + self.finish_pass(now, tick, tau, codes)
+
+    def begin_pass(self, now: int) -> tuple[bool, int, list[tuple]]:
+        """Steps 2 and 4a: tick detection and, on ticks, the link latch. The C++ starts a scenario
+        between this and finish_pass (cpp_core.py pass())."""
+        events: list[tuple] = []
+        n = now // self.S
         tick = n != self.last_n
         if tick:
             self.last_n = n
-        tau = n * S
+        tau = n * self.S
+        if tick and self.unoq:
+            if self.pending_beat is not None:
+                seq, mask, ack, beat_ms = self.pending_beat
+                self.pending_beat = None
+                self.hb_acks.append(seq)
+                if self.ack_floor is None or ack >= self.ack_floor:
+                    self.ever_beat = True
+                    self.mask_rx = mask
+                    self.last_beat = beat_ms
+                    self.ack_t = ack
+                    self.last_seq = seq
+                    self.status["beat"] = not self.status["beat"]
+            up = self.ever_beat and (now - self.last_beat) < self.T and (tau - self.ack_t) < self.T
+            if up != self.link_up:
+                self.link_up = up
+                events.append(("LK", now, up))
+            if self.link_up:
+                self.mask_l = self.mask_rx
+        return tick, tau, events
 
+    def finish_pass(self, now: int, tick: bool, tau: int, codes: list[int]) -> list[tuple]:
+        """Steps 4b-11 of one pass, after begin_pass."""
+        t, events = self.t, []
         if tick:
-            if self.unoq:
-                if self.pending_beat is not None:
-                    seq, mask, ack, beat_ms = self.pending_beat
-                    self.pending_beat = None
-                    self.hb_acks.append(seq)
-                    if self.ack_floor is None or ack >= self.ack_floor:
-                        self.ever_beat = True
-                        self.mask_rx = mask
-                        self.last_beat = beat_ms
-                        self.ack_t = ack
-                        self.last_seq = seq
-                        self.status["beat"] = not self.status["beat"]
-                up = self.ever_beat and (now - self.last_beat) < self.T and (tau - self.ack_t) < self.T
-                if up != self.link_up:
-                    self.link_up = up
-                    events.append(("LK", now, up))
-                if self.link_up:
-                    self.mask_l = self.mask_rx
             for wid, w in self.windows.items():
                 w.push(tau, codes[t["windows"][wid]["sensor"]])
             for rid in self.clock.tick(tau, codes, self.windows):

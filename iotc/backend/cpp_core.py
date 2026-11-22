@@ -380,7 +380,7 @@ IOTC_UNUSED static void pass(uint32_t now) {
   }
 #endif
 #if IOTC_INPUT_SCENARIO
-  if (tick && !scenStarted) {
+  if (tick && !scenStarted && tau % SCEN_ALIGN_MS == 0) {   // aligned start: same window phase
 #if IOTC_BRIDGE
     if (linkUp) { scenStarted = true; scenarioStart(tau, now); }
 #else
@@ -391,7 +391,13 @@ IOTC_UNUSED static void pass(uint32_t now) {
   // step 3: inputs
   readInputs(tick, tau, now);
 #if IOTC_INPUT_SCENARIO
-  if (!scenStarted) { showFrame(now, n); return; }      // suspended until the scenario starts
+  if (!scenStarted) {                                  // suspended until the scenario starts;
+#if IOTC_BRIDGE
+    if (bridgeOk && tick) streamSample((uint32_t)tau);  // samples make Linux heartbeat (link UP)
+#endif
+    showFrame(now, n);
+    return;
+  }
 #endif
 
   // step 4b-d: windows, FOR timers / NOTIFY edges, refusal latch
@@ -517,7 +523,7 @@ IOTC_UNUSED static void pass(uint32_t now) {
 #if IOTC_INPUT_SCENARIO
   if (tick && scenStarted) {
     scenRow++;
-    if (scenRow >= N_SCEN) { scenRow = 0; scenarioStart(tau + SAMPLE_MS, now); }
+    if (scenRow >= N_SCEN) { scenRow = 0; scenStarted = false; }   // restarts on the next aligned tick
   }
 #endif
   // step 13: matrix

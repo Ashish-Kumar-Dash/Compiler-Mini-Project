@@ -597,7 +597,8 @@ Each pass consumes one code per sensor:
   for 3000 ms (Linux sends all values every 500 ms), the compiled-in **fallback scenario** drives
   the codes (looping), until `sim_set` resumes.
 - `scenario`: rows of a compiled-in trace drive the codes, one row per tick, starting at the
-  scenario start (§9.9); before the start, rule evaluation is suspended and actuators hold `init`.
+  scenario start (§9.9); before the start and between iterations, rule evaluation is suspended and
+  actuators hold their state.
 The interpreter consumes codes from a trace (§10.1); the input layer is not modelled.
 
 ### 9.3 One MCU pass (in order)
@@ -702,11 +703,32 @@ SY), then actuator or rule index. Comparisons (differential, co-simulation, conf
 canonical order and exclude `ST` and `I` lines.
 
 ### 9.9 Scenario start (conformance)
-In `--input scenario` on unoq, the scenario starts at the first tick after the link is UP; on
-mcu-only, at the first tick. At the start, the MCU resets its windows, FOR timers and NOTIFY
-state, sets `maskL := 0`, sends `sync(τ, iteration)`, logs `SY`, and from then on latches only
-heartbeats with `ackT ≥ τ_start`. Linux resets its engine state on `sync`. Each loop of the
-scenario starts again with a `sync`.
+In `--input scenario`, a scenario starts on the first tick `τ` with `τ mod A = 0` at which the
+link is UP (unoq) or at all (mcu-only). The start happens right after the link step (§9.3 step
+4a) of that pass. At the start, the MCU resets its windows, FOR timers and NOTIFY state, sets
+`linkUp := true, maskL := 0, ackT := τ`, sends `sync(τ, iteration)`, logs `SY`, and from then on
+latches only heartbeats with `ackT ≥ τ`. Row 0 drives that same pass. Linux resets its engine
+state on `sync`. After the last row, the MCU is suspended again, and the next iteration starts on
+the next aligned tick.
+
+**Alignment** `A = lcm(S, W₁/gcd(W₁,B₁), …)` over all windows (`scenario_align_ms`; 2500 ms for
+`avg(temp, 10s)` at S = 100). Window bucket ids are absolute (§9.5), so a start at an arbitrary
+time would shift the bucket phase. Aligned starts give every iteration on every boot the same
+phase as the compiler's prediction.
+
+While **suspended** (before the first start and between iterations), the pass runs only steps 1,
+2 and 4a. It then streams `sample(τ, codes)` on ticks with the initial codes, so that Linux
+heartbeats and the link can come UP, and draws the matrix. Rules are not evaluated and
+actuators hold their state.
+
+**Conformance mode** (`iotc build --input scenario`, target unoq): the compiler runs the board
+model in a closed loop. It uses the sketch pass with this input layer (`board_model.py`) and
+`LinuxSide`, one pass per tick, and delivers each heartbeat on the next tick. It bakes the
+predicted `EV`/`NT`/`LK` lines of iterations 1 and 2 (iteration 2 repeats) into the page, keyed by
+tick index from `SY`. The page matches the board's lines against them: same tick → exact; within
+10 ticks → shifted (a Bridge round trip longer than a tick); otherwise missing or not predicted.
+Tests check the prediction against the interpreter, the generated `main.py`, and the compiled C++
+in a closed loop with `LinuxSide`.
 
 ### 9.10 Interpreter time model
 One trace row = one MCU tick pass at time `t_i` (a multiple of S; strictly increasing; gaps

@@ -110,6 +110,7 @@ def emit(ir: IRProgram, input_mode: str = "pins", scenario: list[list[int]] | No
                     ("ENSURE", n_ens), ("WIN", n_win), ("FS", n_fs)):
         w(f"static const uint8_t N_{name}_A = {_arr(n)};")
     w(f"static const uint32_t SAMPLE_MS = {ir.sample_ms}, FAILSAFE_TIMEOUT_MS = {ir.failsafe_timeout_ms};")
+    w(f"static const uint32_t SCEN_ALIGN_MS = {build_table(ir)['scenario_align_ms']};   // scenario starts (§9.9)")
     w("static const uint32_t SIM_TIMEOUT_MS = 3000;")
     w(f"static const uint32_t DEADLINE_US = {min(deadlines) * 1000 if deadlines else 0};")
 

@@ -22,6 +22,22 @@ def test_entry(ir: IRProgram, t) -> list:
     return ["avg", ir.window_for(t.var).id, t.op, t.p, t.q]
 
 
+def scenario_align_ms(ir: IRProgram) -> int:
+    """Scenario starts happen on ticks that are multiples of this (§9.9, conformance mode).
+
+    Window bucket ids are k(t) = t*B // W in absolute time, so the bucket phase seen by a scenario
+    depends on its start time. Shifting t by P shifts every k by a whole number exactly when
+    W / gcd(W, B) divides P; starting on multiples of the lcm over all windows (and of S) makes
+    every iteration see the same phase as the compiler's prediction."""
+    S = ir.sample_ms
+    align = S
+    for w in ir.windows:
+        B = min(32, w.window_ms // S)
+        p = w.window_ms // math.gcd(w.window_ms, B)
+        align = align * p // math.gcd(align, p)
+    return align
+
+
 def build_table(ir: IRProgram) -> dict:
     rules = []
     for r in ir.rules:
@@ -35,6 +51,7 @@ def build_table(ir: IRProgram) -> dict:
     return {
         "program": ir.name,
         "sample_ms": ir.sample_ms,
+        "scenario_align_ms": scenario_align_ms(ir),
         "heartbeat_ms": ir.heartbeat_ms,
         "failsafe_timeout_ms": ir.failsafe_timeout_ms,
         "target": ir.target,

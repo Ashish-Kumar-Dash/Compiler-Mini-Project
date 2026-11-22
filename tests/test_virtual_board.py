@@ -21,7 +21,8 @@ from iotc.interp import Interpreter, canonical, load_scenario, parse_trace
 from iotc.options import Options
 from iotc.pipeline import compile_file
 from iotc.table import build_table
-from iotc.virtual_board import SHIM_JS, VirtualBoard, VirtualMcu, load_main, Hub
+from iotc.board_model import VirtualMcu
+from iotc.virtual_board import SHIM_JS, Hub, VirtualBoard, load_main
 
 ROOT = Path(__file__).resolve().parents[1]
 RANK = {"LK": 0, "EV": 1, "NT": 2}
