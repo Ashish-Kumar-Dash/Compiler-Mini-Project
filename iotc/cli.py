@@ -76,12 +76,16 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--demo-controls", action="store_true", help="add the pause control to the page")
     sp = sub.add_parser("dashboard", help="run the full App on a virtual board on this laptop (demo backup)")
     _add_common(sp)
-    sp.add_argument("--scenario", help="fallback scenario CSV: plays when no slider moves for 3 s")
-    sp.add_argument("--autoplay", action="store_true", help="ignore the sliders and loop the scenario")
+    sp.add_argument("--input", choices=["sim", "scenario"], default="sim",
+                    help="sim: sliders (default); scenario: conformance mode, the page checks the prediction")
+    sp.add_argument("--scenario", help="scenario CSV (sim: plays when no slider moves for 3 s)")
+    sp.add_argument("--autoplay", action="store_true", help="sim input: ignore the sliders, loop the scenario")
     sp.add_argument("--host", default="127.0.0.1", help="bind address (0.0.0.0 to reach it from a phone)")
     sp.add_argument("--port", type=int, default=8000)
     sp.add_argument("--no-browser", action="store_true", help="do not open a browser tab")
     sp.add_argument("--seconds", type=float, default=None, help=argparse.SUPPRESS)   # tests: stop after N s
+    sp = sub.add_parser("doctor", help="check the laptop tools and the board before a demo")
+    sp.add_argument("--ascii", action="store_true", help="ASCII-only output")
     for name in ("fuzz", "deploy"):
         sp = sub.add_parser(name)
         sp.add_argument("args", nargs=argparse.REMAINDER)
@@ -195,6 +199,14 @@ def cmd_build(args: argparse.Namespace) -> int:
           f"{', ' + str(len(scenario)) + ' scenario rows' if scenario else ''}; {warnings} warning(s))")
     for f in files:
         print(f"  {f}")
+    cfg_path = Path(args.out) / "assets" / "config.json"
+    if cfg_path.is_file():
+        conf = json.loads(cfg_path.read_text(encoding="utf-8")).get("conformance")
+        if conf:
+            counts = "/".join(str(len(it)) for it in conf["iterations"])
+            print(f"conformance mode: the compiler predicts {counts} event(s) per scenario iteration "
+                  f"({conf['rows']} rows; {'repeats from iteration 2' if conf['steady'] else 'not steady'}); "
+                  f"the page compares them with the board")
     return 0
 
 
@@ -209,8 +221,10 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
         return 1
     if res.ir.board != "unoq" or res.ir.target != "unoq":
         raise UsageError("iotc dashboard runs the full UNO Q App: use --board unoq and --target unoq")
-    if args.autoplay and not args.scenario:
-        raise UsageError("--autoplay needs --scenario FILE")
+    if (args.autoplay or args.input == "scenario") and not args.scenario:
+        raise UsageError(f"{'--autoplay' if args.autoplay else '--input scenario'} needs --scenario FILE")
+    if args.autoplay and args.input == "scenario":
+        raise UsageError("--autoplay is for --input sim; --input scenario always plays the scenario")
     scenario = None
     if args.scenario:
         try:
@@ -218,7 +232,8 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
         except (TraceError, OSError) as exc:
             raise UsageError(str(exc)) from exc
     try:
-        vb = VirtualBoard(res.ir, res.report, scenario, autoplay=args.autoplay, host=args.host, port=args.port)
+        vb = VirtualBoard(res.ir, res.report, scenario, autoplay=args.autoplay, host=args.host, port=args.port,
+                          input_mode=args.input)
     except OSError as exc:
         raise UsageError(f"cannot listen on {args.host}:{args.port}: {exc}") from exc
     vb.start()
@@ -270,6 +285,9 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_matrix_preview(args)
         if args.cmd == "dashboard":
             return cmd_dashboard(args)
+        if args.cmd == "doctor":
+            from . import doctor
+            return doctor.main(args.ascii or not _stream_can_encode(sys.stdout))
         print(f"iotc {args.cmd}: not implemented yet", file=sys.stderr)
         return 2
     except UsageError as exc:
